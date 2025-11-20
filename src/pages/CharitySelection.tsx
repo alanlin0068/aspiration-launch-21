@@ -47,41 +47,6 @@ const CharitySelection = () => {
     }
   };
 
-  const handleCharitySelect = async (charityId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { error } = await supabase
-        .from("user_charity_selections")
-        .insert({
-          user_id: user.id,
-          charity_id: charityId,
-        });
-
-      if (error) {
-        if (error.code === "23505") {
-          toast({
-            title: "Already selected",
-            description: "You've already selected this charity!",
-          });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({
-          title: "Success!",
-          description: "Charity selected successfully!",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -128,7 +93,7 @@ const CharitySelection = () => {
                   key={charity.id}
                   name={charity.name}
                   icon={charity.icon}
-                  onSelect={() => handleCharitySelect(charity.id)}
+                  onSelect={() => navigate(`/charity/${charity.id}`)}
                 />
               ))}
             </div>
