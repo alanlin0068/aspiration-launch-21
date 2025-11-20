@@ -16,25 +16,99 @@ export type Database = {
     Tables: {
       charities: {
         Row: {
+          cost_effectiveness: string | null
           created_at: string
           description: string | null
+          evidence_of_impact: string | null
           icon: string
           id: string
+          image_url: string | null
           name: string
+          overview: string | null
+        }
+        Insert: {
+          cost_effectiveness?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_of_impact?: string | null
+          icon: string
+          id?: string
+          image_url?: string | null
+          name: string
+          overview?: string | null
+        }
+        Update: {
+          cost_effectiveness?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_of_impact?: string | null
+          icon?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          overview?: string | null
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount: number
+          charity_id: string
+          created_at: string
+          id: string
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          charity_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          charity_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_charity_id_fkey"
+            columns: ["charity_id"]
+            isOneToOne: false
+            referencedRelation: "charities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_methods: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          round_up_enabled: boolean
+          user_id: string
         }
         Insert: {
           created_at?: string
-          description?: string | null
-          icon: string
           id?: string
-          name: string
+          is_active?: boolean
+          round_up_enabled?: boolean
+          user_id: string
         }
         Update: {
           created_at?: string
-          description?: string | null
-          icon?: string
           id?: string
-          name?: string
+          is_active?: boolean
+          round_up_enabled?: boolean
+          user_id?: string
         }
         Relationships: []
       }
