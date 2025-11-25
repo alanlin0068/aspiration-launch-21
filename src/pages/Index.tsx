@@ -9,11 +9,25 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/charity-selection");
+        // Check if user has payment method set up
+        const { data: paymentMethod } = await supabase
+          .from("payment_methods")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (paymentMethod) {
+          navigate("/dashboard");
+        } else {
+          navigate("/charity-selection");
+        }
       }
-    });
+    };
+
+    checkSession();
   }, [navigate]);
 
   return (
