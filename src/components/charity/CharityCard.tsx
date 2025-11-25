@@ -35,8 +35,8 @@ export const CharityCard = ({ name, icon, onSelect }: CharityCardProps) => {
           />
         </div>
         
-        {/* Text section - bottom half with frosted-glass effect */}
-        <div className="flex-1 flex items-center justify-center p-6 bg-white/20 backdrop-blur-md border border-white/30">
+        {/* Text section - bottom half with semi-transparent dark overlay */}
+        <div className="flex-1 flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
           <h3 className="text-lg font-semibold text-white text-center">{name}</h3>
         </div>
       </div>
