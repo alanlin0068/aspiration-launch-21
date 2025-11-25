@@ -13,21 +13,25 @@ const Auth = () => {
   const mode = searchParams.get("mode") as "signup" | "signin" || "signup";
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/charity-selection");
-      }
-    });
+        // Check if user has payment method set up
+        const { data: paymentMethod } = await supabase
+          .from("payment_methods")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/charity-selection");
+        if (paymentMethod) {
+          navigate("/dashboard");
+        } else {
+          navigate("/charity-selection");
+        }
       }
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    checkSession();
   }, [navigate]);
 
   return (
