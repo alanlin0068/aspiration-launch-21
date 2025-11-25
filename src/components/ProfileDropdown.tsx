@@ -164,10 +164,10 @@ export const ProfileDropdown = () => {
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+          className="p-3 rounded-full bg-primary/10 hover:bg-primary/20 transition-all hover:scale-105"
           aria-label="Profile menu"
         >
-          <User className="h-5 w-5 text-primary" />
+          <User className="h-6 w-6 text-primary" />
         </button>
 
         {isOpen && (
