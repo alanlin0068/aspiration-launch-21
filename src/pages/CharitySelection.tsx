@@ -75,15 +75,12 @@ const CharitySelection = () => {
         {/* Header */}
         <header className="p-6">
           <div className="flex items-center justify-between">
-            <button 
-              onClick={() => navigate("/auth")}
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-            >
+            <div className="flex items-center gap-3">
               <div className="p-2 bg-primary rounded-full">
                 <Sprout className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold text-foreground">Aspiration</span>
-            </button>
+            </div>
             <ProfileDropdown />
           </div>
         </header>
