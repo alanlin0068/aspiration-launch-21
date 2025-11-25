@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { User, LogOut, Heart, CreditCard, Lock, Trash2 } from "lucide-react";
+import { User, LogOut, Heart, CreditCard, Lock, Trash2, LayoutDashboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -17,8 +17,42 @@ import {
 export const ProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedCharity, setSelectedCharity] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchSelectedCharity();
+  }, []);
+
+  const fetchSelectedCharity = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: selection } = await supabase
+        .from("user_charity_selections")
+        .select("charity_id")
+        .eq("user_id", user.id)
+        .order("selected_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (selection) {
+        const { data: charity } = await supabase
+          .from("charities")
+          .select("*")
+          .eq("id", selection.charity_id)
+          .single();
+
+        if (charity) {
+          setSelectedCharity(charity);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error fetching charity:", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -45,12 +79,33 @@ export const ProfileDropdown = () => {
     navigate("/charity-selection");
   };
 
-  const handleChangePayment = () => {
+  const handleChangePayment = async () => {
     setIsOpen(false);
-    toast({
-      title: "Coming Soon",
-      description: "Payment method update will be available soon.",
-    });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: selection } = await supabase
+      .from("user_charity_selections")
+      .select("charity_id")
+      .eq("user_id", user.id)
+      .order("selected_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (selection?.charity_id) {
+      navigate(`/payment-setup/${selection.charity_id}`);
+    } else {
+      toast({
+        title: "No charity selected",
+        description: "Please select a charity first.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDashboard = () => {
+    setIsOpen(false);
+    navigate("/dashboard");
   };
 
   const handleChangePassword = async () => {
@@ -122,6 +177,22 @@ export const ProfileDropdown = () => {
               onClick={() => setIsOpen(false)}
             />
             <div className="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-background border border-border z-20 py-1">
+              {selectedCharity && (
+                <div className="px-4 py-2 border-b border-border">
+                  <div className="text-xs text-muted mb-1">Current Charity</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{selectedCharity.icon}</span>
+                    <span className="text-sm font-medium text-foreground">{selectedCharity.name}</span>
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={handleDashboard}
+                className="w-full px-4 py-2 text-left hover:bg-accent transition-colors flex items-center gap-2 text-foreground"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </button>
               <button
                 onClick={handleChangeCharity}
                 className="w-full px-4 py-2 text-left hover:bg-accent transition-colors flex items-center gap-2 text-foreground"
