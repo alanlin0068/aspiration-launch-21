@@ -2,26 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, Heart, TrendingUp, Users, User, LogOut, CreditCard, Lock, Trash2, ArrowLeftRight } from "lucide-react";
+import { Sprout, Heart, TrendingUp, Users } from "lucide-react";
+import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -43,7 +26,6 @@ const Dashboard = () => {
   });
   const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -136,67 +118,6 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const handleChangeCharity = () => {
-    navigate("/charity-selection");
-  };
-
-  const handleChangePayment = () => {
-    toast({
-      title: "Coming Soon",
-      description: "Payment method update will be available soon.",
-    });
-  };
-
-  const handleChangePassword = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) return;
-
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-      redirectTo: `${window.location.origin}/auth`,
-    });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Password Reset Email Sent",
-        description: "Check your email for a password reset link.",
-      });
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Delete user data from tables
-      await supabase.from("user_charity_selections").delete().eq("user_id", user.id);
-      await supabase.from("donations").delete().eq("user_id", user.id);
-      await supabase.from("payment_methods").delete().eq("user_id", user.id);
-      await supabase.from("profiles").delete().eq("id", user.id);
-
-      toast({
-        title: "Account Deleted",
-        description: "Your account has been successfully deleted.",
-      });
-
-      await supabase.auth.signOut();
-      navigate("/");
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-    setShowDeleteDialog(false);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -230,41 +151,7 @@ const Dashboard = () => {
             </div>
             <span className="text-2xl font-bold text-foreground">Aspiration</span>
           </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full"
-              >
-                <User className="h-6 w-6" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={handleChangeCharity}>
-                <ArrowLeftRight className="mr-2 h-4 w-4" />
-                Change Charity
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleChangePayment}>
-                <CreditCard className="mr-2 h-4 w-4" />
-                Change Payment Method
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleChangePassword}>
-                <Lock className="mr-2 h-4 w-4" />
-                Change Password
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Account
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ProfileDropdown />
         </header>
 
         {/* Main content */}
@@ -333,25 +220,6 @@ const Dashboard = () => {
           </div>
         </main>
       </div>
-
-      {/* Delete Account Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account
-              and remove all your data from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Account
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

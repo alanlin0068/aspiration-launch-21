@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Sprout, CreditCard, ArrowLeft } from "lucide-react";
+import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 
 const PaymentSetup = () => {
@@ -93,15 +94,18 @@ const PaymentSetup = () => {
               </div>
               <span className="text-2xl font-bold text-foreground">Aspiration</span>
             </button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(`/charity/${charityId}`)}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`/charity/${charityId}`)}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+              <ProfileDropdown />
+            </div>
           </div>
         </header>
 
