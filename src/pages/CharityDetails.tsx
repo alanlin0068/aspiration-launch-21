@@ -54,8 +54,45 @@ const CharityDetails = () => {
     }
   };
 
-  const handleConfirm = () => {
-    navigate(`/payment-setup/${id}`);
+  const handleConfirm = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Check if user already has a payment method
+      const { data: paymentMethod } = await supabase
+        .from("payment_methods")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      // Save the charity selection
+      const { error: selectionError } = await supabase
+        .from("user_charity_selections")
+        .insert({
+          user_id: user.id,
+          charity_id: id,
+        });
+
+      if (selectionError) throw selectionError;
+
+      // If payment method exists, go to dashboard. Otherwise, go to payment setup
+      if (paymentMethod) {
+        toast({
+          title: "Charity Updated",
+          description: "Your charity selection has been updated successfully!",
+        });
+        navigate("/dashboard");
+      } else {
+        navigate(`/payment-setup/${id}`);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading || !charity) {
