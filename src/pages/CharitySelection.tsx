@@ -90,7 +90,7 @@ const CharitySelection = () => {
 
         {/* Main content */}
         <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <div className="w-full max-w-2xl mx-auto space-y-10 flex flex-col items-center">
+          <div className="w-full max-w-6xl mx-auto space-y-12 flex flex-col items-center">
             {/* Frosted glass heading container */}
             <div className="space-y-3 text-center backdrop-blur-xl bg-background/20 px-12 py-8 rounded-3xl border border-white/10 shadow-2xl">
               <h1 className="text-5xl font-bold text-white tracking-wide drop-shadow-lg">
@@ -101,8 +101,8 @@ const CharitySelection = () => {
               </p>
             </div>
 
-            {/* Charity cards */}
-            <div className="space-y-5 w-full flex flex-col items-center">
+            {/* Charity cards - horizontal row */}
+            <div className="flex flex-wrap justify-center gap-6 w-full">
               {charities.map((charity) => (
                 <CharityCard
                   key={charity.id}
