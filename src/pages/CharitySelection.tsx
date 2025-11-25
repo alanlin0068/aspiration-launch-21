@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CharityCard } from "@/components/charity/CharityCard";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Sprout } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
@@ -84,18 +83,7 @@ const CharitySelection = () => {
               </div>
               <span className="text-2xl font-bold text-foreground">Aspiration</span>
             </button>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/auth")}
-                className="gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-              <ProfileDropdown />
-            </div>
+            <ProfileDropdown />
           </div>
         </header>
 
