@@ -63,11 +63,14 @@ const CharitySelection = () => {
       <div
         className="absolute bottom-0 left-0 right-0 h-1/3"
         style={{
-          backgroundImage: `url(${forestHero})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${forestHero})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       />
+      
+      {/* Gradient overlay for smooth transition */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
@@ -88,13 +91,18 @@ const CharitySelection = () => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
-          <div className="w-full max-w-2xl space-y-8">
-            <h1 className="text-4xl font-bold text-center text-foreground">
-              Select Your Charity
-            </h1>
+        <main className="flex-1 flex flex-col items-center justify-center px-6 pb-24 pt-8">
+          <div className="w-full max-w-2xl space-y-10">
+            <div className="space-y-3 text-center">
+              <h1 className="text-5xl font-bold text-foreground tracking-wide">
+                Select Your Charity
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                Choose where your contributions will make the most impact.
+              </p>
+            </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {charities.map((charity) => (
                 <CharityCard
                   key={charity.id}
