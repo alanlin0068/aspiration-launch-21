@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Sprout, ChevronRight, ArrowLeft } from "lucide-react";
+import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -91,15 +92,18 @@ const CharityDetails = () => {
               </div>
               <span className="text-2xl font-bold text-foreground">Aspiration</span>
             </button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/charity-selection")}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/charity-selection")}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+              <ProfileDropdown />
+            </div>
           </div>
         </header>
 
