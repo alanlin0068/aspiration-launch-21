@@ -3,9 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, Heart, TrendingUp, Users, User } from "lucide-react";
+import { Sprout, Heart, TrendingUp, Users, User, LogOut, CreditCard, Lock, Trash2, ArrowLeftRight } from "lucide-react";
 import forestHero from "@/assets/forest-hero.jpg";
+import type { Database } from "@/integrations/supabase/types";
+
+type Charity = Database["public"]["Tables"]["charities"]["Row"];
 
 interface DonationStats {
   thisMonth: number;
@@ -16,24 +36,56 @@ interface DonationStats {
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DonationStats>({
-    thisMonth: 35.20,
-    allTime: 132.50,
-    livesImpacted: 26,
-    roundUps: 142,
+    thisMonth: 0,
+    allTime: 0,
+    livesImpacted: 0,
+    roundUps: 0,
   });
+  const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
     fetchDonationStats();
+    fetchSelectedCharity();
   }, []);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/");
+    }
+  };
+
+  const fetchSelectedCharity = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: selection } = await supabase
+        .from("user_charity_selections")
+        .select("charity_id")
+        .eq("user_id", user.id)
+        .order("selected_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (selection) {
+        const { data: charity } = await supabase
+          .from("charities")
+          .select("*")
+          .eq("id", selection.charity_id)
+          .single();
+
+        if (charity) {
+          setSelectedCharity(charity);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error fetching charity:", error);
     }
   };
 
@@ -84,6 +136,67 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  const handleChangeCharity = () => {
+    navigate("/charity-selection");
+  };
+
+  const handleChangePayment = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Payment method update will be available soon.",
+    });
+  };
+
+  const handleChangePassword = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) return;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your email for a password reset link.",
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Delete user data from tables
+      await supabase.from("user_charity_selections").delete().eq("user_id", user.id);
+      await supabase.from("donations").delete().eq("user_id", user.id);
+      await supabase.from("payment_methods").delete().eq("user_id", user.id);
+      await supabase.from("profiles").delete().eq("id", user.id);
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been successfully deleted.",
+      });
+
+      await supabase.auth.signOut();
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setShowDeleteDialog(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -114,14 +227,41 @@ const Dashboard = () => {
             </div>
             <span className="text-2xl font-bold text-foreground">Aspiration</span>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="rounded-full"
-          >
-            <User className="h-6 w-6" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+              >
+                <User className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={handleChangeCharity}>
+                <ArrowLeftRight className="mr-2 h-4 w-4" />
+                Change Charity
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleChangePayment}>
+                <CreditCard className="mr-2 h-4 w-4" />
+                Change Payment Method
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleChangePassword}>
+                <Lock className="mr-2 h-4 w-4" />
+                Change Password
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Account
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         {/* Main content */}
@@ -129,6 +269,14 @@ const Dashboard = () => {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">Your Impact Dashboard</h1>
             <p className="text-muted text-lg">Every dollar creates ripples of change</p>
+            {selectedCharity && (
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <span className="text-2xl">{selectedCharity.icon}</span>
+                <p className="text-lg text-muted">
+                  Supporting <span className="font-semibold text-foreground">{selectedCharity.name}</span>
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -140,7 +288,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <div className="text-4xl font-bold">${stats.thisMonth.toFixed(2)}</div>
-                <div className="text-sm text-muted">+23% from last month</div>
+                <div className="text-sm text-muted">Round-up donations</div>
               </div>
             </Card>
 
@@ -152,7 +300,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <div className="text-4xl font-bold">${stats.allTime.toFixed(2)}</div>
-                <div className="text-sm text-muted">Since Jan 2025</div>
+                <div className="text-sm text-muted">Total donations</div>
               </div>
             </Card>
 
@@ -182,6 +330,25 @@ const Dashboard = () => {
           </div>
         </main>
       </div>
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your account
+              and remove all your data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete Account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

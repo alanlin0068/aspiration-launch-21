@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, CreditCard } from "lucide-react";
+import { Sprout, CreditCard, ArrowLeft } from "lucide-react";
 import forestHero from "@/assets/forest-hero.jpg";
 
 const PaymentSetup = () => {
@@ -83,11 +83,22 @@ const PaymentSetup = () => {
       <div className="relative z-10 min-h-screen">
         {/* Header */}
         <header className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-full">
-              <Sprout className="h-6 w-6 text-primary-foreground" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary rounded-full">
+                <Sprout className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <span className="text-2xl font-bold text-foreground">Aspiration</span>
             </div>
-            <span className="text-2xl font-bold text-foreground">Aspiration</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/charity/${charityId}`)}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
           </div>
         </header>
 
@@ -167,11 +178,7 @@ const PaymentSetup = () => {
             {/* Right column - Example visualization */}
             <Card className="p-8 bg-accent">
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted">Fries</p>
-                    <p className="text-sm text-muted">1/1/21</p>
-                  </div>
+                <div className="flex items-center justify-end">
                   <p className="text-lg font-semibold">$2.75</p>
                 </div>
 

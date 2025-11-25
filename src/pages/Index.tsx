@@ -40,7 +40,7 @@ const Index = () => {
         <div className="flex gap-4 justify-center">
           <Button
             size="lg"
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/auth?mode=signup")}
             className="text-lg px-8"
           >
             Get Started
@@ -48,7 +48,7 @@ const Index = () => {
           <Button
             size="lg"
             variant="outline"
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/auth?mode=signin")}
             className="text-lg px-8 bg-card/80 backdrop-blur-sm"
           >
             Sign In

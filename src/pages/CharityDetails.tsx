@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, ChevronRight } from "lucide-react";
+import { Sprout, ChevronRight, ArrowLeft } from "lucide-react";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -81,11 +81,22 @@ const CharityDetails = () => {
       <div className="relative z-10 min-h-screen">
         {/* Header */}
         <header className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary rounded-full">
-              <Sprout className="h-6 w-6 text-primary-foreground" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary rounded-full">
+                <Sprout className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <span className="text-2xl font-bold text-foreground">Aspiration</span>
             </div>
-            <span className="text-2xl font-bold text-foreground">Aspiration</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/charity-selection")}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
           </div>
         </header>
 
