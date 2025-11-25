@@ -1,5 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Globe, Droplets, Utensils, PawPrint, ChevronRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import charityMalaria from "@/assets/charity-malaria.jpg";
+import charityCash from "@/assets/charity-cash.jpg";
+import charityNutrition from "@/assets/charity-nutrition.jpg";
+import charityAnimals from "@/assets/charity-animals.jpg";
 
 interface CharityCardProps {
   name: string;
@@ -7,29 +10,33 @@ interface CharityCardProps {
   onSelect: () => void;
 }
 
-const iconMap = {
-  globe: Globe,
-  droplets: Droplets,
-  utensils: Utensils,
-  "paw-print": PawPrint,
+const imageMap = {
+  droplets: charityMalaria,
+  globe: charityCash,
+  utensils: charityNutrition,
+  "paw-print": charityAnimals,
 };
 
 export const CharityCard = ({ name, icon, onSelect }: CharityCardProps) => {
-  const Icon = iconMap[icon as keyof typeof iconMap] || Globe;
+  const image = imageMap[icon as keyof typeof imageMap] || charityCash;
 
   return (
-    <Button
+    <Card
       onClick={onSelect}
-      variant="outline"
-      className="w-full max-w-md h-auto py-7 px-10 backdrop-blur-xl bg-white/90 hover:bg-white border-0 text-foreground hover:text-foreground rounded-3xl transition-all duration-200 hover:scale-[1.02] cursor-pointer shadow-lg hover:shadow-xl"
+      className="w-64 h-80 cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] border-border"
     >
-      <div className="flex items-center justify-between w-full gap-6">
-        <div className="flex items-center gap-5">
-          <Icon className="h-8 w-8 stroke-[2] text-primary" />
-          <span className="text-xl font-semibold">{name}</span>
+      <div className="h-full flex flex-col">
+        <div className="h-48 overflow-hidden">
+          <img 
+            src={image} 
+            alt={name}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <ChevronRight className="h-6 w-6 stroke-[2] text-primary" />
+        <div className="flex-1 flex items-center justify-center p-6 bg-card">
+          <h3 className="text-lg font-semibold text-card-foreground text-center">{name}</h3>
+        </div>
       </div>
-    </Button>
+    </Card>
   );
 };
