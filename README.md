@@ -10,7 +10,7 @@ For Interaction Sequence 1, you will explore how to create an account on Aspirat
 
 To open Aspiration, click on the lovable link above.
 
-First, please make an account using the "Get Started" button.  Remember your account details if you would like to return to the application.
+First, please make an account using the "Get Started" button.  The statistics on the right of the login page are placeholders.  Remember your account details if you would like to return to the application.
 
 Second, select the charity for which you would be interested in contributing donations to.  If you want to learn more, select each charity and read their descriptions.
 
