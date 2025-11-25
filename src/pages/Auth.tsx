@@ -1,13 +1,16 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { ImpactStats } from "@/components/auth/ImpactStats";
-import { Sprout } from "lucide-react";
+import { Sprout, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import forestHero from "@/assets/forest-hero.jpg";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode") as "signup" | "signin" || "signup";
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -32,14 +35,25 @@ const Auth = () => {
       {/* Left side - Auth form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-card">
         <div className="w-full max-w-md space-y-8">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-2 bg-primary rounded-full">
-              <Sprout className="h-6 w-6 text-primary-foreground" />
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary rounded-full">
+                <Sprout className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <span className="text-2xl font-bold text-foreground">Aspiration</span>
             </div>
-            <span className="text-2xl font-bold text-foreground">Aspiration</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
           </div>
           
-          <AuthForm />
+          <AuthForm mode={mode} />
         </div>
       </div>
 

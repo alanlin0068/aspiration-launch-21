@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Chrome, Mail } from "lucide-react";
 import { z } from "zod";
 
 const signupSchema = z.object({
@@ -16,8 +15,12 @@ const signupSchema = z.object({
   acceptTerms: z.boolean().refine(val => val === true, "You must accept the terms"),
 });
 
-export const AuthForm = () => {
-  const [isLogin, setIsLogin] = useState(false);
+interface AuthFormProps {
+  mode?: "signup" | "signin";
+}
+
+export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
+  const [isLogin, setIsLogin] = useState(mode === "signin");
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,11 +58,26 @@ export const AuthForm = () => {
         
         if (error) throw error;
         
+        // Check if user has payment method set up
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: paymentMethod } = await supabase
+            .from("payment_methods")
+            .select("*")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (paymentMethod) {
+            navigate("/dashboard");
+          } else {
+            navigate("/charity-selection");
+          }
+        }
+        
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
-        navigate("/charity-selection");
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -87,27 +105,6 @@ export const AuthForm = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleAuth = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/charity-selection`,
-        },
-      });
-      
-      if (error) throw error;
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
       setLoading(false);
     }
   };
@@ -183,38 +180,6 @@ export const AuthForm = () => {
           {loading ? "Loading..." : isLogin ? "SIGN IN" : "CREATE AN ACCOUNT"}
         </Button>
       </form>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="bg-card px-2 text-muted">or</span>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleGoogleAuth}
-          disabled={loading}
-        >
-          <Chrome className="mr-2 h-4 w-4" />
-          {isLogin ? "Sign in" : "Join"} with Google
-        </Button>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          disabled={loading}
-        >
-          <Mail className="mr-2 h-4 w-4" />
-          {isLogin ? "Sign in" : "Join"} with Email
-        </Button>
-      </div>
 
       <div className="text-center text-sm">
         <span className="text-muted">
