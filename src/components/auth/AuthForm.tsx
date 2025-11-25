@@ -51,20 +51,24 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
     
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         
         if (error) throw error;
         
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
+
         // Check if user has payment method set up
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+        if (data.user) {
           const { data: paymentMethod } = await supabase
             .from("payment_methods")
             .select("*")
-            .eq("user_id", user.id)
+            .eq("user_id", data.user.id)
             .maybeSingle();
 
           if (paymentMethod) {
@@ -73,13 +77,8 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
             navigate("/charity-selection");
           }
         }
-        
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        });
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -96,6 +95,7 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
           title: "Account created!",
           description: "Welcome to Aspiration!",
         });
+        
         navigate("/charity-selection");
       }
     } catch (error: any) {
