@@ -11,10 +11,10 @@ interface CharityCardProps {
 }
 
 const imageMap = {
-  droplets: charityMalaria,
-  globe: charityCash,
-  utensils: charityNutrition,
-  "paw-print": charityAnimals,
+  "🦟": charityMalaria,
+  "💰": charityCash,
+  "👁️": charityNutrition,
+  "🐔": charityAnimals,
 };
 
 export const CharityCard = ({ name, icon, onSelect }: CharityCardProps) => {
