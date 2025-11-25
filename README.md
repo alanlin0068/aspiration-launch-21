@@ -3,6 +3,7 @@
 ## Project info
 
 **URL**: https://lovable.dev/projects/abc09875-214a-4972-b13a-64caedcfbee6
+**URL**: https://lovable.dev/projects/ea532944-6c14-450d-8a43-eed6fbc143fb?magic_link=mc_720ad3fe-e1d4-4f5a-b83e-77bd313fd35e
 
 ## How can I edit this code?
 
