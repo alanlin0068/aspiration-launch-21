@@ -21,14 +21,14 @@ export const CharityCard = ({ name, icon, onSelect }: CharityCardProps) => {
     <Button
       onClick={onSelect}
       variant="outline"
-      className="w-full max-w-md h-auto py-7 px-10 bg-primary hover:bg-primary/90 border-0 text-foreground hover:text-foreground rounded-3xl transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+      className="w-full max-w-md h-auto py-7 px-10 backdrop-blur-xl bg-white/90 hover:bg-white border-0 text-foreground hover:text-foreground rounded-3xl transition-all duration-200 hover:scale-[1.02] cursor-pointer shadow-lg hover:shadow-xl"
     >
       <div className="flex items-center justify-between w-full gap-6">
         <div className="flex items-center gap-5">
-          <Icon className="h-8 w-8 stroke-[2]" />
+          <Icon className="h-8 w-8 stroke-[2] text-primary" />
           <span className="text-xl font-semibold">{name}</span>
         </div>
-        <ChevronRight className="h-6 w-6 stroke-[2]" />
+        <ChevronRight className="h-6 w-6 stroke-[2] text-primary" />
       </div>
     </Button>
   );

@@ -59,18 +59,16 @@ const CharitySelection = () => {
 
   return (
     <div className="min-h-screen relative">
-      {/* Forest background bottom half */}
+      {/* Forest background - full page */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1/3"
+        className="absolute inset-0"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${forestHero})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url(${forestHero})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          backgroundAttachment: "fixed",
         }}
       />
-      
-      {/* Gradient overlay for smooth transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
@@ -91,18 +89,20 @@ const CharitySelection = () => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col items-center justify-center px-6 pb-24 pt-8">
-          <div className="w-full max-w-2xl space-y-10">
-            <div className="space-y-3 text-center">
-              <h1 className="text-5xl font-bold text-foreground tracking-wide">
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+          <div className="w-full max-w-2xl mx-auto space-y-10 flex flex-col items-center">
+            {/* Frosted glass heading container */}
+            <div className="space-y-3 text-center backdrop-blur-xl bg-background/20 px-12 py-8 rounded-3xl border border-white/10 shadow-2xl">
+              <h1 className="text-5xl font-bold text-white tracking-wide drop-shadow-lg">
                 Select Your Charity
               </h1>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-white/90 text-lg drop-shadow-md">
                 Choose where your contributions will make the most impact.
               </p>
             </div>
 
-            <div className="space-y-5">
+            {/* Charity cards */}
+            <div className="space-y-5 w-full flex flex-col items-center">
               {charities.map((charity) => (
                 <CharityCard
                   key={charity.id}
