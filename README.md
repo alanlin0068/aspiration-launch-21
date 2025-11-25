@@ -1,9 +1,22 @@
-# Welcome to your Lovable project
+# Aspiration 
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/abc09875-214a-4972-b13a-64caedcfbee6
-**URL**: https://lovable.dev/projects/ea532944-6c14-450d-8a43-eed6fbc143fb?magic_link=mc_720ad3fe-e1d4-4f5a-b83e-77bd313fd35e
+**URL**: [https://lovable.dev/projects/ea532944-6c14-450d-8a43-eed6fbc143fb?magic_link=mc_720ad3fe-e1d4-4f5a-b83e-77bd313fd35e](https://id-preview--ea532944-6c14-450d-8a43-eed6fbc143fb.lovable.app/?__lovable_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiT2p5MFRLbk9oRVVoNkFpanBCMkxxaVNQcFQzMyIsInByb2plY3RfaWQiOiJlYTUzMjk0NC02YzE0LTQ1MGQtOGE0My1lZWQ2ZmJjMTQzZmIiLCJub25jZSI6ImU5MWRjZDA4OWNkNTRjMzM1ODE5MjUzMWRjMWJjMThiIiwiaXNzIjoibG92YWJsZS1hcGkiLCJzdWIiOiJlYTUzMjk0NC02YzE0LTQ1MGQtOGE0My1lZWQ2ZmJjMTQzZmIiLCJhdWQiOlsibG92YWJsZS1hcHAiXSwiZXhwIjoxNzY0Njk0MDE0LCJuYmYiOjE3NjQwODkyMTQsImlhdCI6MTc2NDA4OTIxNH0.868X8n8hJdEDnTTLI_Em7m5jM0LaPBVQjAlSIv-43XQ)
+
+## Interaction Sequence 1
+
+For Interaction Sequence 1, you will explore how to create an account on Aspiration, select a charity, and set up your round-up donations.
+
+To open Aspiration, click on the lovable link above.
+
+First, please make an account using the "Get Started" button.  Remember your account details if you would like to return to the application.
+
+Second, select the charity for which you would be interested in contributing donations to.  If you want to learn more, select each charity and read their descriptions.
+
+Third, enter FAKE credit card information for testing purposes that we would usually use when making round up donations at your next purchases. Database is not yet secure so please do NOT enter real credit card information for testing.  The option to change your credit card information along with a secure database will be implemented at a future time.
+
+Finally, you can view your dashboard and adjust any of the above that you have set up on your account.
 
 ## How can I edit this code?
 
@@ -50,25 +63,3 @@ npm run dev
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/abc09875-214a-4972-b13a-64caedcfbee6) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
