@@ -142,15 +142,12 @@ const Dashboard = () => {
       <div className="relative z-10 min-h-screen">
         {/* Header */}
         <header className="p-6 flex items-center justify-between">
-          <button 
-            onClick={() => navigate("/auth")}
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-          >
+          <div className="flex items-center gap-3">
             <div className="p-2 bg-primary rounded-full">
               <Sprout className="h-6 w-6 text-primary-foreground" />
             </div>
             <span className="text-2xl font-bold text-foreground">Aspiration</span>
-          </button>
+          </div>
           <ProfileDropdown />
         </header>
 
@@ -158,7 +155,7 @@ const Dashboard = () => {
         <main className="max-w-4xl mx-auto px-6 pb-24">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">Your Impact Dashboard</h1>
-            <p className="text-muted text-lg">Every dollar creates ripples of change</p>
+            <p className="text-muted text-lg">Growing impact, one seed at a time</p>
             {selectedCharity && (
               <div className="mt-4 flex items-center justify-center gap-2">
                 <span className="text-2xl">{selectedCharity.icon}</span>
