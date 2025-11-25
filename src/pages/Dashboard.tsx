@@ -222,7 +222,7 @@ const Dashboard = () => {
         {/* Header */}
         <header className="p-6 flex items-center justify-between">
           <button 
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/auth")}
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <div className="p-2 bg-primary rounded-full">
