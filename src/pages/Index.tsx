@@ -12,6 +12,19 @@ const Index = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        if (session?.access_token) {
+          window.postMessage(
+            {
+              source: "aspiration-auth", // Unique identifier for your message
+              type: "AUTH_TOKEN",
+              token: session.access_token
+            },
+            "*" // IMPORTANT: Use a specific origin for production security if possible.
+          );
+          console.log("Auth token sent via window.postMessage");
+        } else {
+          console.log("Session token not available to send.");
+        }
         // Check if user has payment method set up
         const { data: paymentMethod } = await supabase
           .from("payment_methods")

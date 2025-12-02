@@ -2,13 +2,16 @@
 chrome.storage.local.get("token", ({ token }) => {
     const status = document.getElementById("status");
     const loginSection = document.getElementById("login-section");
+    const logoutBtn = document.getElementById("logout-btn");
 
     if (token) {
         status.innerText = "Connected to your account";
         loginSection.style.display = "none";
+        logoutBtn.style.display = "block"; 
     } else {
         status.innerText = "Log in on the web app.";
         loginSection.style.display = "block";
+        logoutBtn.style.display = "none";
     }
 });
 document.getElementById("title").onclick = () => {
@@ -22,6 +25,21 @@ document.getElementById("open-webapp").onclick = () => {
     });
 };
 
+// Logout button handler
+document.getElementById("logout-btn").onclick = async () => {
+    if (confirm("Are you sure you want to log out?")) {
+        await chrome.storage.local.remove("token");
+
+        // Update UI
+        const status = document.getElementById("status");
+        const loginSection = document.getElementById("login-section");
+        const logoutBtn = document.getElementById("logout-btn");
+
+        status.innerText = "Log in on the web app.";
+        loginSection.style.display = "block";
+        logoutBtn.style.display = "none";
+    }
+};
 
 // Handle simulation
 document.getElementById("simulate").onclick = () => {

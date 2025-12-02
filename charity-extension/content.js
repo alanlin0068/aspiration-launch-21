@@ -9,52 +9,52 @@ let popupShown = false;
 
 // Function to extract price from Amazon product page
 function extractAmazonPrice() {
-  // Amazon uses different price selectors, try them in order
-  const priceSelectors = [
-    '.a-price .a-offscreen',           // Most common
-    '#priceblock_ourprice',             // Older format
-    '#priceblock_dealprice',            // Deal price
-    '.a-price-whole',                   // Whole number part
-    '#price_inside_buybox',             // Buy box price
-    '[data-a-color="price"]',           // Alternative
-  ];
+    // Amazon uses different price selectors, try them in order
+    const priceSelectors = [
+        '.a-price .a-offscreen',           // Most common
+        '#priceblock_ourprice',             // Older format
+        '#priceblock_dealprice',            // Deal price
+        '.a-price-whole',                   // Whole number part
+        '#price_inside_buybox',             // Buy box price
+        '[data-a-color="price"]',           // Alternative
+    ];
 
-  for (const selector of priceSelectors) {
-    const element = document.querySelector(selector);
-    if (element) {
-      let priceText = element.textContent.trim();
-      // Extract numeric value (remove $, commas, etc.)
-      const match = priceText.match(/[\d,]+\.?\d*/);
-      if (match) {
-        const price = parseFloat(match[0].replace(/,/g, ''));
-        if (price > 0) {
-          return price;
+    for (const selector of priceSelectors) {
+        const element = document.querySelector(selector);
+        if (element) {
+            let priceText = element.textContent.trim();
+            // Extract numeric value (remove $, commas, etc.)
+            const match = priceText.match(/[\d,]+\.?\d*/);
+            if (match) {
+                const price = parseFloat(match[0].replace(/,/g, ''));
+                if (price > 0) {
+                    return price;
+                }
+            }
         }
-      }
     }
-  }
 
-  return null;
+    return null;
 }
 
 // Function to check if we're on an Amazon product page
 function isAmazonProductPage() {
-  const url = window.location.href;
-  // Check if URL contains /dp/ or /gp/product/ (Amazon product identifiers)
-  return url.includes('amazon.com') && (url.includes('/dp/') || url.includes('/gp/product/'));
+    const url = window.location.href;
+    // Check if URL contains /dp/ or /gp/product/ (Amazon product identifiers)
+    return url.includes('amazon.com') && (url.includes('/dp/') || url.includes('/gp/product/'));
 }
 
 // Function to create and show the donation popup
 function showDonationPopup(price) {
-  if (popupShown) return;
-  popupShown = true;
+    if (popupShown) return;
+    popupShown = true;
 
-  const roundUp = Math.ceil(price) - price;
+    const roundUp = Math.ceil(price) - price;
 
-  // Create overlay
-  const overlay = document.createElement('div');
-  overlay.id = 'aspiration-overlay';
-  overlay.style.cssText = `
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'aspiration-overlay';
+    overlay.style.cssText = `
     position: fixed;
     top: 0;
     left: 0;
@@ -68,9 +68,9 @@ function showDonationPopup(price) {
     animation: fadeIn 0.3s ease-in;
   `;
 
-  // Create popup card
-  const popup = document.createElement('div');
-  popup.style.cssText = `
+    // Create popup card
+    const popup = document.createElement('div');
+    popup.style.cssText = `
     background: white;
     border-radius: 16px;
     padding: 32px;
@@ -80,7 +80,7 @@ function showDonationPopup(price) {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   `;
 
-  popup.innerHTML = `
+    popup.innerHTML = `
     <style>
       @keyframes fadeIn {
         from { opacity: 0; }
@@ -148,112 +148,112 @@ function showDonationPopup(price) {
     </div>
   `;
 
-  overlay.appendChild(popup);
-  document.body.appendChild(overlay);
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
 
-  // Handle donate button
-  document.getElementById('aspiration-donate').addEventListener('click', async () => {
-    await processDonation(price, roundUp);
-    overlay.remove();
-  });
+    // Handle donate button
+    document.getElementById('aspiration-donate').addEventListener('click', async () => {
+        await processDonation(price, roundUp);
+        overlay.remove();
+    });
 
-  // Handle skip button
-  document.getElementById('aspiration-skip').addEventListener('click', () => {
-    overlay.remove();
-  });
+    // Handle skip button
+    document.getElementById('aspiration-skip').addEventListener('click', () => {
+        overlay.remove();
+    });
 
-  // Close on overlay click (outside popup)
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
+    // Close on overlay click (outside popup)
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.remove();
+        }
+    });
 }
 
 // Function to process the donation
 async function processDonation(purchaseAmount, roundUpAmount) {
-  try {
-    // Get stored auth token
-    const result = await chrome.storage.local.get("token");
-    const token = result.token;
+    try {
+        // Get stored auth token
+        const result = await chrome.storage.local.get("token");
+        const token = result.token;
 
-    if (!token) {
-      alert("Please log in to Aspiration to make donations.");
-      chrome.runtime.sendMessage({ type: "OPEN_WEBAPP" });
-      return;
-    }
-
-    // Get the logged in user
-    const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "apikey": SUPABASE_ANON_KEY
-      }
-    });
-
-    if (!userRes.ok) {
-      throw new Error("Authentication failed");
-    }
-
-    const user = await userRes.json();
-
-    // Get user's selected charity
-    const selectionRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/user_charity_selections?user_id=eq.${user.id}&select=charity_id&limit=1`,
-      {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "apikey": SUPABASE_ANON_KEY,
-          "Accept": "application/vnd.pgrst.object+json"
+        if (!token) {
+            alert("Please log in to Aspiration to make donations.");
+            chrome.runtime.sendMessage({ type: "OPEN_WEBAPP" });
+            return;
         }
-      }
-    );
 
-    const selection = await selectionRes.json();
+        // Get the logged in user
+        const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "apikey": SUPABASE_ANON_KEY
+            }
+        });
 
-    if (!selection || !selection.charity_id) {
-      alert("Please select a charity in the Aspiration app first.");
-      chrome.runtime.sendMessage({ type: "OPEN_WEBAPP" });
-      return;
+        if (!userRes.ok) {
+            throw new Error("Authentication failed");
+        }
+
+        const user = await userRes.json();
+
+        // Get user's selected charity
+        const selectionRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/user_charity_selections?user_id=eq.${user.id}&select=charity_id&limit=1`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Accept": "application/vnd.pgrst.object+json"
+                }
+            }
+        );
+
+        const selection = await selectionRes.json();
+
+        if (!selection || !selection.charity_id) {
+            alert("Please select a charity in the Aspiration app first.");
+            chrome.runtime.sendMessage({ type: "OPEN_WEBAPP" });
+            return;
+        }
+
+        // Insert donation
+        const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/donations`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "apikey": SUPABASE_ANON_KEY,
+                "Prefer": "return=representation"
+            },
+            body: JSON.stringify({
+                user_id: user.id,
+                charity_id: selection.charity_id,
+                amount: roundUpAmount,
+                type: "round-up",
+                status: "completed",
+            })
+        });
+
+        if (!insertRes.ok) {
+            const error = await insertRes.text();
+            console.error("Donation failed:", error);
+            throw new Error("Failed to record donation");
+        }
+
+        // Show success message
+        showSuccessMessage(roundUpAmount);
+
+    } catch (error) {
+        console.error("Error processing donation:", error);
+        alert("Failed to process donation. Please try again.");
     }
-
-    // Insert donation
-    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/donations`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        "apikey": SUPABASE_ANON_KEY,
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify({
-        user_id: user.id,
-        charity_id: selection.charity_id,
-        amount: roundUpAmount,
-        type: "round-up",
-        status: "completed",
-      })
-    });
-
-    if (!insertRes.ok) {
-      const error = await insertRes.text();
-      console.error("Donation failed:", error);
-      throw new Error("Failed to record donation");
-    }
-
-    // Show success message
-    showSuccessMessage(roundUpAmount);
-
-  } catch (error) {
-    console.error("Error processing donation:", error);
-    alert("Failed to process donation. Please try again.");
-  }
 }
 
 // Function to show success message
 function showSuccessMessage(amount) {
-  const successDiv = document.createElement('div');
-  successDiv.style.cssText = `
+    const successDiv = document.createElement('div');
+    successDiv.style.cssText = `
     position: fixed;
     top: 20px;
     right: 20px;
@@ -267,7 +267,7 @@ function showSuccessMessage(amount) {
     animation: slideInRight 0.3s ease-out;
   `;
 
-  successDiv.innerHTML = `
+    successDiv.innerHTML = `
     <style>
       @keyframes slideInRight {
         from { transform: translateX(100%); }
@@ -283,46 +283,42 @@ function showSuccessMessage(amount) {
     </div>
   `;
 
-  document.body.appendChild(successDiv);
+    document.body.appendChild(successDiv);
 
-  // Remove after 4 seconds
-  setTimeout(() => {
-    successDiv.style.animation = 'slideInRight 0.3s ease-out reverse';
-    setTimeout(() => successDiv.remove(), 300);
-  }, 4000);
+    // Remove after 4 seconds
+    setTimeout(() => {
+        successDiv.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => successDiv.remove(), 300);
+    }, 4000);
 }
 
 // Main initialization
 function init() {
-  // Only run on Amazon product pages
-  if (!isAmazonProductPage()) {
-    return;
-  }
+    // Only run on Amazon product pages
+    if (!isAmazonProductPage()) {
+        return;
+    }
 
-  // Wait for page to fully load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', detectAndShowPopup);
-  } else {
-    detectAndShowPopup();
-  }
+    // Wait for page to fully load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', detectAndShowPopup);
+    } else {
+        detectAndShowPopup();
+    }
 }
 
 function detectAndShowPopup() {
-  // Give Amazon a moment to render the price
-  setTimeout(() => {
-    const price = extractAmazonPrice();
-    
-    if (price) {
-      console.log("Aspiration: Detected Amazon product price:", price);
-      
-      // Show popup after a short delay for better UX
-      setTimeout(() => {
-        showDonationPopup(price);
-      }, 1000);
-    } else {
-      console.log("Aspiration: Could not detect price on this page");
-    }
-  }, 500);
+    // Give Amazon a moment to render the price
+    setTimeout(() => {
+        const price = extractAmazonPrice();
+
+        if (price) {
+            console.log("Aspiration: Detected Amazon product price:", price);
+            showDonationPopup(price);
+        } else {
+            console.log("Aspiration: Could not detect price on this page");
+        }
+    }, 500);
 }
 
 // Run on page load and on URL changes (for single-page navigation)
@@ -331,10 +327,10 @@ init();
 // Listen for URL changes (Amazon uses client-side routing)
 let lastUrl = location.href;
 new MutationObserver(() => {
-  const currentUrl = location.href;
-  if (currentUrl !== lastUrl) {
-    lastUrl = currentUrl;
-    popupShown = false; // Reset for new page
-    init();
-  }
+    const currentUrl = location.href;
+    if (currentUrl !== lastUrl) {
+        lastUrl = currentUrl;
+        popupShown = false; // Reset for new page
+        init();
+    }
 }).observe(document, { subtree: true, childList: true });

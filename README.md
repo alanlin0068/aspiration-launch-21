@@ -18,6 +18,20 @@ Third, enter FAKE credit card information for testing purposes that we would usu
 
 Finally, you can view your dashboard and adjust any of the above that you have set up on your account.
 
+## Interaction Sequence 2
+
+For Interaction Sequence 2, you will explore how to setup the chrome extension that will detect your online purchases and ask if you want to donate the roundup.
+
+First, goto 'chrome://extensions/' and turn on developer mode and click on the "Load Unpacked" button. Select the charity-extension folder in this repo.
+
+You should now be able to see the extension in your list of extensions.
+
+To get started, log in to Aspiration on the web app(log out and log in again if you were already logged in), and you're basically all set assuming you completed the steps in interaction sequence 1, if not, do those first.
+
+Now, you can click on the extension like you would with any other extension on chrome using the button to the right of the search bar where you can see if you are logged in.
+
+To see the extension in action, goto amazon.com and click on any product you see. You will see a popup asking if you want to donate the roundup amount of the product you selected. If you choose to donate, you will see corresponding changes in your dashboard in the web app. It will update your stats and also show up in your history of donations.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
