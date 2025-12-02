@@ -9,98 +9,88 @@ import { useToast } from "@/hooks/use-toast";
 import { Sprout, CreditCard, ArrowLeft } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
-
 const PaymentSetup = () => {
-  const { charityId } = useParams<{ charityId: string }>();
+  const {
+    charityId
+  } = useParams<{
+    charityId: string;
+  }>();
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Create payment method record
-      const { error: paymentError } = await supabase
-        .from("payment_methods")
-        .upsert({
-          user_id: user.id,
-          is_active: true,
-          round_up_enabled: true,
-        });
-
+      const {
+        error: paymentError
+      } = await supabase.from("payment_methods").upsert({
+        user_id: user.id,
+        is_active: true,
+        round_up_enabled: true
+      });
       if (paymentError) throw paymentError;
 
       // Create initial donation record
-      const { error: donationError } = await supabase
-        .from("donations")
-        .insert({
-          user_id: user.id,
-          charity_id: charityId,
-          amount: 0.25,
-          type: "round-up",
-          status: "completed",
-        });
-
+      const {
+        error: donationError
+      } = await supabase.from("donations").insert({
+        user_id: user.id,
+        charity_id: charityId,
+        amount: 0.25,
+        type: "round-up",
+        status: "completed"
+      });
       if (donationError) throw donationError;
-
       toast({
         title: "Success!",
-        description: "Round-up donations enabled successfully!",
+        description: "Round-up donations enabled successfully!"
       });
-      
       navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen relative">
+  return <div className="min-h-screen relative">
       {/* Forest background bottom */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-1/4"
-        style={{
-          backgroundImage: `url(${forestHero})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+      <div className="absolute bottom-0 left-0 right-0 h-1/4" style={{
+      backgroundImage: `url(${forestHero})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center"
+    }} />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen">
         {/* Header */}
         <header className="p-6">
           <div className="flex items-center justify-between">
-            <button 
-              onClick={() => navigate("/auth")}
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-            >
+            <button onClick={() => navigate("/auth")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="p-2 bg-primary rounded-full">
                 <Sprout className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="text-2xl font-bold text-foreground">Aspiration</span>
+              <span className="text-2xl font-bold text-primary">Aspiration</span>
             </button>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(`/charity/${charityId}`)}
-                className="gap-2"
-              >
+              <Button variant="ghost" size="sm" onClick={() => navigate(`/charity/${charityId}`)} className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
@@ -128,15 +118,7 @@ const PaymentSetup = () => {
                 <div className="space-y-2">
                   <Label htmlFor="cardNumber">Card number</Label>
                   <div className="relative">
-                    <Input
-                      id="cardNumber"
-                      type="text"
-                      placeholder="1234 1234 1234 1234"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      maxLength={19}
-                      required
-                    />
+                    <Input id="cardNumber" type="text" placeholder="1234 1234 1234 1234" value={cardNumber} onChange={e => setCardNumber(e.target.value)} maxLength={19} required />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
                       <CreditCard className="h-4 w-4 text-muted" />
                     </div>
@@ -146,37 +128,16 @@ const PaymentSetup = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="expiryDate">Expiration date</Label>
-                    <Input
-                      id="expiryDate"
-                      type="text"
-                      placeholder="MM/YY"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      maxLength={5}
-                      required
-                    />
+                    <Input id="expiryDate" type="text" placeholder="MM/YY" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} maxLength={5} required />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="cvv">Security code</Label>
-                    <Input
-                      id="cvv"
-                      type="text"
-                      placeholder="CVV"
-                      value={cvv}
-                      onChange={(e) => setCvv(e.target.value)}
-                      maxLength={4}
-                      required
-                    />
+                    <Input id="cvv" type="text" placeholder="CVV" value={cvv} onChange={e => setCvv(e.target.value)} maxLength={4} required />
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  disabled={loading}
-                >
+                <Button type="submit" className="w-full" size="lg" disabled={loading}>
                   {loading ? "Processing..." : "Confirm"}
                 </Button>
               </form>
@@ -205,8 +166,6 @@ const PaymentSetup = () => {
           </div>
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default PaymentSetup;
