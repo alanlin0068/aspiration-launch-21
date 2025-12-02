@@ -14,9 +14,21 @@ First, please make an account using the "Get Started" button.  The statistics on
 
 Second, select the charity for which you would be interested in contributing donations to.  If you want to learn more, select each charity and read their descriptions.
 
-Third, enter FAKE credit card information for testing purposes that we would usually use when making round up donations at your next purchases. Database is not yet secure so please do NOT enter real credit card information for testing.  The option to change your credit card information along with a secure database will be implemented at a future time.
+DO NOT ENTER YOUR REAL CREDIT CARD INFORMATION.
 
-Finally, you can view your dashboard and adjust any of the above that you have set up on your account.
+Again, third, enter FAKE credit card information for testing purposes that we would usually use when making round up donations at your next purchases. Database is not yet secure so please do NOT enter real credit card information for testing.  The option to change your credit card information along with a secure database will be implemented at a future time.
+
+Finally, you can view your dashboard and, by clicking on your profile, adjust any of the above that you have set up on your account.
+
+## Interaction Sequence 2
+
+For Interaction Sequence 2, you will explore how the Aspiration chrome extension works on Amazon.  
+
+First, you will go on amazon as you normally would, and select a product that you would like to purchase.
+
+Second, navigate to checkout and wait for a pop-up from Aspiration which confirms a donation.
+
+Third, navigate to your profile through the extension, and check that your donation history was updated.
 
 ## How can I edit this code?
 
