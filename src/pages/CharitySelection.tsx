@@ -70,7 +70,7 @@ const CharitySelection = () => {
               <div className="p-2 bg-primary rounded-full">
                 <Sprout className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="text-2xl font-bold text-secondary-foreground">Aspiration</span>
+              <span className="text-2xl text-secondary-foreground font-extrabold">Aspiration</span>
             </div>
             <ProfileDropdown />
           </div>
