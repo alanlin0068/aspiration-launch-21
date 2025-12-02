@@ -1,3 +1,4 @@
+![Aspiration Logo](aspiration_logo.png)
 # Aspiration 
 
 ## Project info
