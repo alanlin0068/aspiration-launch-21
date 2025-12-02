@@ -11,6 +11,7 @@ let popupShown = false;
 function extractAmazonPrice() {
     // Amazon uses different price selectors, try them in order
     const priceSelectors = [
+        '.a-text-bold .order-summary-line-definition',
         '.a-price .a-offscreen',           // Most common
         '#priceblock_ourprice',             // Older format
         '#priceblock_dealprice',            // Deal price
@@ -23,10 +24,13 @@ function extractAmazonPrice() {
         const element = document.querySelector(selector);
         if (element) {
             let priceText = element.textContent.trim();
+            console.log(priceText);
             // Extract numeric value (remove $, commas, etc.)
             const match = priceText.match(/[\d,]+\.?\d*/);
+            console.log(match);
             if (match) {
                 const price = parseFloat(match[0].replace(/,/g, ''));
+                console.log("Extracted price:", price);
                 if (price > 0) {
                     return price;
                 }
@@ -37,11 +41,11 @@ function extractAmazonPrice() {
     return null;
 }
 
-// Function to check if we're on an Amazon product page
-function isAmazonProductPage() {
+// Function to check if we're on an Amazon Checkout page
+function isAmazonCheckoutPage() {
     const url = window.location.href;
     // Check if URL contains /dp/ or /gp/product/ (Amazon product identifiers)
-    return url.includes('amazon.com') && (url.includes('/dp/') || url.includes('/gp/product/'));
+    return url.includes('amazon.com') && (url.includes('/checkout/'));
 }
 
 // Function to create and show the donation popup
@@ -294,8 +298,8 @@ function showSuccessMessage(amount) {
 
 // Main initialization
 function init() {
-    // Only run on Amazon product pages
-    if (!isAmazonProductPage()) {
+    // Only run on Amazon Checkout pages
+    if (!isAmazonCheckoutPage()) {
         return;
     }
 
