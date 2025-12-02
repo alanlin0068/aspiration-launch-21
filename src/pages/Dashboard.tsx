@@ -7,61 +7,58 @@ import { Sprout, Heart, TrendingUp, Users } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
-
 type Charity = Database["public"]["Tables"]["charities"]["Row"];
-
 interface DonationStats {
   thisMonth: number;
   allTime: number;
   livesImpacted: number;
   roundUps: number;
 }
-
 const Dashboard = () => {
   const [stats, setStats] = useState<DonationStats>({
     thisMonth: 0,
     allTime: 0,
     livesImpacted: 0,
-    roundUps: 0,
+    roundUps: 0
   });
   const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     checkAuth();
     fetchDonationStats();
     fetchSelectedCharity();
   }, []);
-
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     if (!session) {
       navigate("/");
     }
   };
-
   const fetchSelectedCharity = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
-      const { data: selection } = await supabase
-        .from("user_charity_selections")
-        .select("charity_id")
-        .eq("user_id", user.id)
-        .order("selected_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
+      const {
+        data: selection
+      } = await supabase.from("user_charity_selections").select("charity_id").eq("user_id", user.id).order("selected_at", {
+        ascending: false
+      }).limit(1).maybeSingle();
       if (selection) {
-        const { data: charity } = await supabase
-          .from("charities")
-          .select("*")
-          .eq("id", selection.charity_id)
-          .single();
-
+        const {
+          data: charity
+        } = await supabase.from("charities").select("*").eq("id", selection.charity_id).single();
         if (charity) {
           setSelectedCharity(charity);
         }
@@ -70,73 +67,58 @@ const Dashboard = () => {
       console.error("Error fetching charity:", error);
     }
   };
-
   const fetchDonationStats = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
-      const { data: donations, error } = await supabase
-        .from("donations")
-        .select("amount, created_at, type")
-        .eq("user_id", user.id)
-        .eq("status", "completed");
-
+      const {
+        data: donations,
+        error
+      } = await supabase.from("donations").select("amount, created_at, type").eq("user_id", user.id).eq("status", "completed");
       if (error) throw error;
-
       if (donations && donations.length > 0) {
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-        const thisMonthTotal = donations
-          .filter(d => new Date(d.created_at) >= startOfMonth)
-          .reduce((sum, d) => sum + Number(d.amount), 0);
-
+        const thisMonthTotal = donations.filter(d => new Date(d.created_at) >= startOfMonth).reduce((sum, d) => sum + Number(d.amount), 0);
         const allTimeTotal = donations.reduce((sum, d) => sum + Number(d.amount), 0);
         const roundUpCount = donations.filter(d => d.type === "round-up").length;
-
         setStats({
           thisMonth: thisMonthTotal,
           allTime: allTimeTotal,
           livesImpacted: Math.floor(allTimeTotal / 5),
-          roundUps: roundUpCount,
+          roundUps: roundUpCount
         });
       }
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen relative">
+  return <div className="min-h-screen relative">
       {/* Forest background bottom */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-1/3"
-        style={{
-          backgroundImage: `url(${forestHero})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+      <div className="absolute bottom-0 left-0 right-0 h-1/3" style={{
+      backgroundImage: `url(${forestHero})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center"
+    }} />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen">
@@ -146,7 +128,7 @@ const Dashboard = () => {
             <div className="p-2 bg-primary rounded-full">
               <Sprout className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-foreground">Aspiration</span>
+            <span className="text-2xl text-primary font-extrabold">Aspiration</span>
           </div>
           <ProfileDropdown />
         </header>
@@ -156,14 +138,12 @@ const Dashboard = () => {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">Your Impact Dashboard</h1>
             <p className="text-muted text-lg">Growing impact, one seed at a time</p>
-            {selectedCharity && (
-              <div className="mt-4 flex items-center justify-center gap-2">
+            {selectedCharity && <div className="mt-4 flex items-center justify-center gap-2">
                 <span className="text-2xl">{selectedCharity.icon}</span>
                 <p className="text-lg text-muted">
                   Supporting <span className="font-semibold text-foreground">{selectedCharity.name}</span>
                 </p>
-              </div>
-            )}
+              </div>}
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -217,8 +197,6 @@ const Dashboard = () => {
           </div>
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
