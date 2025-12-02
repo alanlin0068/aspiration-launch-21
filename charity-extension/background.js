@@ -11,4 +11,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         //    will be called asynchronously, keeping the port open.
         return true;
     }
+
+    if (message.type === "OPEN_WEBAPP") {
+        // Open the web app in a new tab
+        chrome.tabs.create({
+            url: "http://localhost:8080/"
+        });
+        sendResponse({ success: true });
+        return true;
+    }
+
 });
