@@ -66,6 +66,11 @@ const CharityDetails = () => {
         .eq("user_id", user.id)
         .maybeSingle();
 
+      await supabase
+        .from("user_charity_selections")
+        .delete()
+        .eq("user_id", user.id);
+
       // Save the charity selection
       const { error: selectionError } = await supabase
         .from("user_charity_selections")
@@ -120,7 +125,7 @@ const CharityDetails = () => {
         {/* Header */}
         <header className="p-6">
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={() => navigate("/auth")}
               className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
             >
