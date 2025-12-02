@@ -87,7 +87,7 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Source Sans Pro',
+  				'Figtree',
   				'ui-sans-serif',
   				'system-ui',
   				'sans-serif',
