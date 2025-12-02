@@ -7,68 +7,59 @@ import { Sprout } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
-
 type Charity = Database["public"]["Tables"]["charities"]["Row"];
-
 const CharitySelection = () => {
   const [charities, setCharities] = useState<Charity[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     checkAuth();
     fetchCharities();
   }, []);
-
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     if (!session) {
       navigate("/");
     }
   };
-
   const fetchCharities = async () => {
     try {
-      const { data, error } = await supabase
-        .from("charities")
-        .select("*")
-        .order("name");
-
+      const {
+        data,
+        error
+      } = await supabase.from("charities").select("*").order("name");
       if (error) throw error;
       setCharities(data || []);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen relative">
+  return <div className="min-h-screen relative">
       {/* Forest background - full page */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url(${forestHero})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
-      />
+      <div className="absolute inset-0" style={{
+      backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url(${forestHero})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundAttachment: "fixed"
+    }} />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
@@ -79,7 +70,7 @@ const CharitySelection = () => {
               <div className="p-2 bg-primary rounded-full">
                 <Sprout className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="text-2xl font-bold text-foreground">Aspiration</span>
+              <span className="text-2xl font-bold text-secondary-foreground">Aspiration</span>
             </div>
             <ProfileDropdown />
           </div>
@@ -100,20 +91,11 @@ const CharitySelection = () => {
 
             {/* Charity cards - horizontal row */}
             <div className="flex flex-wrap justify-center gap-6 w-full">
-              {charities.map((charity) => (
-                <CharityCard
-                  key={charity.id}
-                  name={charity.name}
-                  icon={charity.icon}
-                  onSelect={() => navigate(`/charity/${charity.id}`)}
-                />
-              ))}
+              {charities.map(charity => <CharityCard key={charity.id} name={charity.name} icon={charity.icon} onSelect={() => navigate(`/charity/${charity.id}`)} />)}
             </div>
           </div>
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CharitySelection;
