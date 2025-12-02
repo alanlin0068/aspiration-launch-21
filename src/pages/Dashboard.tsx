@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, Heart, TrendingUp, Users } from "lucide-react";
+import { Sprout, Heart, TrendingUp, Users, Calendar } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
 
 type Charity = Database["public"]["Tables"]["charities"]["Row"];
+type Donation = Database["public"]["Tables"]["donations"]["Row"];
+
+interface DonationWithCharity extends Donation {
+  charities: Charity;
+}
 
 interface DonationStats {
   thisMonth: number;
@@ -25,6 +30,7 @@ const Dashboard = () => {
     roundUps: 0,
   });
   const [selectedCharity, setSelectedCharity] = useState<Charity | null>(null);
+  const [donationHistory, setDonationHistory] = useState<DonationWithCharity[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -33,6 +39,7 @@ const Dashboard = () => {
     checkAuth();
     fetchDonationStats();
     fetchSelectedCharity();
+    fetchDonationHistory();
   }, []);
 
   const checkAuth = async () => {
@@ -68,6 +75,43 @@ const Dashboard = () => {
       }
     } catch (error: any) {
       console.error("Error fetching charity:", error);
+    }
+  };
+
+  const fetchDonationHistory = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Fetch donations with charity information using a JOIN
+      const { data: donations, error } = await supabase
+        .from("donations")
+        .select(`
+          *,
+          charities (
+            id,
+            name,
+            icon,
+            description
+          )
+        `)
+        .eq("user_id", user.id)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false })
+        .limit(20); // Get last 20 donations
+
+      if (error) throw error;
+
+      if (donations) {
+        setDonationHistory(donations as DonationWithCharity[]);
+      }
+    } catch (error: any) {
+      console.error("Error fetching donation history:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load donation history",
+        variant: "destructive",
+      });
     }
   };
 
@@ -111,6 +155,15 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const handleSignOut = async () => {
@@ -166,7 +219,8 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          {/* Stats Grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* This Month */}
             <Card className="p-6 space-y-3">
               <div className="flex items-center gap-2 text-primary">
@@ -215,6 +269,49 @@ const Dashboard = () => {
               </div>
             </Card>
           </div>
+
+          {/* Donation History */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Calendar className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl font-bold">Donation History</h2>
+            </div>
+
+            {donationHistory.length === 0 ? (
+              <div className="text-center py-8 text-muted">
+                <p>No donations yet. Start making an impact today!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {donationHistory.map((donation) => (
+                  <div
+                    key={donation.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-secondary/20"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-3xl">{donation.charities.icon}</span>
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {donation.charities.name}
+                        </p>
+                        <p className="text-sm">
+                          {formatDate(donation.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-primary">
+                        ${Number(donation.amount).toFixed(2)}
+                      </p>
+                      <p className="text-xs capitalize">
+                        {donation.type}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </main>
       </div>
     </div>

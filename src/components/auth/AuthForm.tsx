@@ -31,7 +31,7 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isLogin) {
       try {
         signupSchema.parse({ firstName, email, password, acceptTerms });
@@ -48,16 +48,16 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
     }
 
     setLoading(true);
-    
+
     try {
       if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        
+
         if (error) throw error;
-        
+
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",
@@ -88,16 +88,32 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
             },
           },
         });
-        
+
         if (error) throw error;
-        
+
         toast({
           title: "Account created!",
           description: "Welcome to Aspiration!",
         });
-        
         navigate("/charity-selection");
       }
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.access_token) {
+        window.postMessage(
+          {
+            source: "aspiration-auth", // Unique identifier for your message
+            type: "AUTH_TOKEN",
+            token: session.access_token
+          },
+          "*" // IMPORTANT: Use a specific origin for production security if possible.
+        );
+        console.log("Auth token sent via window.postMessage");
+      } else {
+        console.log("Session token not available to send.");
+      }
+
+
     } catch (error: any) {
       toast({
         title: "Error",
