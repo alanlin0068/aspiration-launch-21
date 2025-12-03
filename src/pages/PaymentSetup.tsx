@@ -95,7 +95,7 @@ const PaymentSetup = () => {
             Set up Round-Up Donations
           </h1>
 
-          <div className="grid lg:grid-cols-2 gap-8 items-start">
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
             {/* Left column - Payment form */}
             <Card className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
