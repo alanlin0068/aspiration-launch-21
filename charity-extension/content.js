@@ -75,8 +75,8 @@ function getTreeInfo(totalDonated) {
     return { currentStage, progress, toNextStage, currentMilestone };
 }
 
-// Function to fetch user's total donations
-async function fetchUserTotalDonations(token) {
+// Function to fetch user's data (donations and charity)
+async function fetchUserData(token) {
     try {
         const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
             headers: {
@@ -84,9 +84,10 @@ async function fetchUserTotalDonations(token) {
                 "apikey": SUPABASE_ANON_KEY
             }
         });
-        if (!userRes.ok) return 0;
+        if (!userRes.ok) return { totalDonated: 0, charityName: null };
         const user = await userRes.json();
         
+        // Fetch donations
         const donationsRes = await fetch(
             `${SUPABASE_URL}/rest/v1/donations?select=amount&user_id=eq.${user.id}&status=eq.completed`,
             {
@@ -96,12 +97,45 @@ async function fetchUserTotalDonations(token) {
                 }
             }
         );
-        if (!donationsRes.ok) return 0;
-        const donations = await donationsRes.json();
-        return donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+        const donations = donationsRes.ok ? await donationsRes.json() : [];
+        const totalDonated = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+        
+        // Fetch selected charity
+        const selectionRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/user_charity_selections?select=charity_id&user_id=eq.${user.id}&order=selected_at.desc&limit=1`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "apikey": SUPABASE_ANON_KEY
+                }
+            }
+        );
+        let charityName = null;
+        if (selectionRes.ok) {
+            const selections = await selectionRes.json();
+            if (selections.length > 0) {
+                const charityRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/charities?select=name&id=eq.${selections[0].charity_id}`,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "apikey": SUPABASE_ANON_KEY
+                        }
+                    }
+                );
+                if (charityRes.ok) {
+                    const charities = await charityRes.json();
+                    if (charities.length > 0) {
+                        charityName = charities[0].name;
+                    }
+                }
+            }
+        }
+        
+        return { totalDonated, charityName };
     } catch (e) {
-        console.error("Error fetching donations:", e);
-        return 0;
+        console.error("Error fetching user data:", e);
+        return { totalDonated: 0, charityName: null };
     }
 }
 
@@ -112,11 +146,12 @@ async function showDonationPopup(price) {
 
     const roundUp = Math.ceil(price) - price;
     
-    // Fetch user's tree progress
+    // Fetch user's tree progress and charity
     const result = await chrome.storage.local.get("token");
     const token = result.token;
-    const totalDonated = token ? await fetchUserTotalDonations(token) : 0;
-    const treeInfo = getTreeInfo(totalDonated);
+    const userData = token ? await fetchUserData(token) : { totalDonated: 0, charityName: null };
+    const treeInfo = getTreeInfo(userData.totalDonated);
+    const charityName = userData.charityName || "your selected charity";
     
     // Tree image URL (using GitHub raw or local extension assets)
     const treeImageUrl = chrome.runtime.getURL(`images/stage${treeInfo.currentStage}.png`);
@@ -278,7 +313,7 @@ async function showDonationPopup(price) {
       </div>
       
       <h2 style="margin: 0 0 8px 0; font-size: 22px; color: #1a1a1a;">Make an Impact?</h2>
-      <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Round up your purchase to donate the difference</p>
+      <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Donate to <span style="color: #10b981; font-weight: 500;">${charityName}</span></p>
       
       <div style="background: #f5f5f5; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
