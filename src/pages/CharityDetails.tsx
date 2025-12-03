@@ -8,84 +8,83 @@ import { Sprout, ChevronRight, ArrowLeft } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
-
 type Charity = Database["public"]["Tables"]["charities"]["Row"];
-
 const CharityDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
   const [charity, setCharity] = useState<Charity | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
     checkAuth();
     if (id) {
       fetchCharity();
     }
   }, [id]);
-
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     if (!session) {
       navigate("/");
     }
   };
-
   const fetchCharity = async () => {
     try {
-      const { data, error } = await supabase
-        .from("charities")
-        .select("*")
-        .eq("id", id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from("charities").select("*").eq("id", id).single();
       if (error) throw error;
       setCharity(data);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
       navigate("/charity-selection");
     } finally {
       setLoading(false);
     }
   };
-
   const handleConfirm = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Check if user already has a payment method
-      const { data: paymentMethod } = await supabase
-        .from("payment_methods")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      await supabase
-        .from("user_charity_selections")
-        .delete()
-        .eq("user_id", user.id);
+      const {
+        data: paymentMethod
+      } = await supabase.from("payment_methods").select("*").eq("user_id", user.id).maybeSingle();
+      await supabase.from("user_charity_selections").delete().eq("user_id", user.id);
 
       // Save the charity selection
-      const { error: selectionError } = await supabase
-        .from("user_charity_selections")
-        .insert({
-          user_id: user.id,
-          charity_id: id,
-        });
-
+      const {
+        error: selectionError
+      } = await supabase.from("user_charity_selections").insert({
+        user_id: user.id,
+        charity_id: id
+      });
       if (selectionError) throw selectionError;
 
       // If payment method exists, go to dashboard. Otherwise, go to payment setup
       if (paymentMethod) {
         toast({
           title: "Charity Updated",
-          description: "Your charity selection has been updated successfully!",
+          description: "Your charity selection has been updated successfully!"
         });
         navigate("/dashboard");
       } else {
@@ -95,52 +94,36 @@ const CharityDetails = () => {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   if (loading || !charity) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl">Loading...</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen relative">
+  return <div className="min-h-screen relative">
       {/* Forest background bottom */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-1/4"
-        style={{
-          backgroundImage: `url(${forestHero})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+      <div className="absolute bottom-0 left-0 right-0 h-1/4" style={{
+      backgroundImage: `url(${forestHero})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center"
+    }} />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen">
         {/* Header */}
         <header className="p-6">
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => navigate("/auth")}
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-            >
+            <button onClick={() => navigate("/auth")} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="p-2 bg-primary rounded-full">
                 <Sprout className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="text-2xl font-bold text-foreground">Aspiration</span>
+              <span className="text-2xl font-bold text-primary">Aspiration</span>
             </button>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/charity-selection")}
-                className="gap-2"
-              >
+              <Button variant="ghost" size="sm" onClick={() => navigate("/charity-selection")} className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
@@ -154,23 +137,13 @@ const CharityDetails = () => {
           <div className="grid lg:grid-cols-2 gap-8 items-start">
             {/* Left column - Confirm button and image */}
             <div className="space-y-6">
-              <Button
-                onClick={handleConfirm}
-                size="lg"
-                className="w-full max-w-md text-xl py-8 rounded-full"
-              >
+              <Button onClick={handleConfirm} size="lg" className="w-full max-w-md text-xl py-8 rounded-full">
                 Confirm <ChevronRight className="ml-2 h-6 w-6" />
               </Button>
 
-              {charity.image_url && (
-                <div className="rounded-lg overflow-hidden">
-                  <img
-                    src={charity.image_url}
-                    alt={charity.name}
-                    className="w-full h-64 object-cover"
-                  />
-                </div>
-              )}
+              {charity.image_url && <div className="rounded-lg overflow-hidden">
+                  <img src={charity.image_url} alt={charity.name} className="w-full h-64 object-cover" />
+                </div>}
             </div>
 
             {/* Right column - Information card */}
@@ -199,8 +172,6 @@ const CharityDetails = () => {
           </div>
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CharityDetails;
