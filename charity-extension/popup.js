@@ -4,24 +4,34 @@ chrome.storage.local.get("token", ({ token }) => {
     const loginSection = document.getElementById("login-section");
     const logoutBtn = document.getElementById("logout-btn");
 
+    const changeCharityBtn = document.getElementById("change-charity-btn");
+
     if (token) {
         status.innerText = "Connected to your account";
         loginSection.style.display = "none";
-        logoutBtn.style.display = "block"; 
+        logoutBtn.style.display = "block";
+        changeCharityBtn.style.display = "block";
     } else {
         status.innerText = "Log in on the web app.";
         loginSection.style.display = "block";
         logoutBtn.style.display = "none";
+        changeCharityBtn.style.display = "none";
     }
 });
 document.getElementById("title").onclick = () => {
     chrome.tabs.create({
-        url: "http://localhost:8080/"
+        url: "https://ea532944-6c14-450d-8a43-eed6fbc143fb.lovableproject.com/"
     });
 };
 document.getElementById("open-webapp").onclick = () => {
     chrome.tabs.create({
-        url: "http://localhost:8080/"
+        url: "https://ea532944-6c14-450d-8a43-eed6fbc143fb.lovableproject.com/"
+    });
+};
+
+document.getElementById("change-charity-btn").onclick = () => {
+    chrome.tabs.create({
+        url: "https://ea532944-6c14-450d-8a43-eed6fbc143fb.lovableproject.com/charity-selection"
     });
 };
 
