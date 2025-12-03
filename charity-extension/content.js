@@ -151,7 +151,10 @@ async function showDonationPopup(price) {
     const token = result.token;
     const userData = token ? await fetchUserData(token) : { totalDonated: 0, charityName: null };
     const treeInfo = getTreeInfo(userData.totalDonated);
-    const charityName = userData.charityName || "your selected charity";
+    const charityName = userData.charityName;
+    const charityDisplay = charityName 
+        ? `Donate to <span style="color: #10b981; font-weight: 500;">${charityName}</span>`
+        : `<a href="http://localhost:8080/charity-selection" target="_blank" style="color: #10b981; text-decoration: none;">Select a charity</a> to start donating`;
     
     // Tree image URL (using GitHub raw or local extension assets)
     const treeImageUrl = chrome.runtime.getURL(`images/stage${treeInfo.currentStage}.png`);
@@ -313,7 +316,7 @@ async function showDonationPopup(price) {
       </div>
       
       <h2 style="margin: 0 0 8px 0; font-size: 22px; color: #1a1a1a;">Make an Impact?</h2>
-      <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">Donate to <span style="color: #10b981; font-weight: 500;">${charityName}</span></p>
+      <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">${charityDisplay}</p>
       
       <div style="background: #f5f5f5; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
