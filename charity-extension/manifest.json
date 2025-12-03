@@ -23,7 +23,12 @@
       "js": ["content.js"]
     },
     {
-      "matches": ["http://localhost:8080/*", "http://127.0.0.1:8080/*"],
+      "matches": [
+        "http://localhost:8080/*", 
+        "http://127.0.0.1:8080/*",
+        "https://*.lovableproject.com/*",
+        "https://*.lovable.app/*"
+      ],
       "js": ["content_script.js"]
     }
   ],
