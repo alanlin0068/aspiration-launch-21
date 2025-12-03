@@ -68,7 +68,6 @@ const Index = () => {
           <Button
             size="lg"
             onClick={() => navigate("/auth?mode=signup")}
-            className="text-2xl px-12 py-8 h-auto font-semibold"
           >
             Get Started
           </Button>

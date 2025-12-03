@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, ChevronRight, ArrowLeft } from "lucide-react";
+import { Sprout, ChevronRight, ArrowLeft, ExternalLink, BadgeCheck } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
@@ -148,6 +148,20 @@ const CharityDetails = () => {
 
             {/* Right column - Information card */}
             <Card className="p-8 space-y-6">
+              {/* GiveWell Verification Badge */}
+              <div className="flex items-center justify-center gap-2 p-3 bg-primary/10 rounded-lg">
+                <BadgeCheck className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">GiveWell Top Charity</span>
+                <a
+                  href="https://www.givewell.org/charities/top-charities"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline text-sm flex items-center gap-1"
+                >
+                  Learn more <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+
               <div>
                 <h2 className="text-2xl font-bold mb-4 text-center">OVERVIEW</h2>
                 <p className="text-foreground leading-relaxed text-center">
@@ -168,6 +182,21 @@ const CharityDetails = () => {
                   {charity.evidence_of_impact}
                 </p>
               </div>
+
+              {/* Official Website Link */}
+              {(charity as any).website_url && (
+                <div className="pt-4 border-t border-border">
+                  <a
+                    href={(charity as any).website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 text-primary hover:underline font-medium"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Visit Official Website
+                  </a>
+                </div>
+              )}
             </Card>
           </div>
         </main>
