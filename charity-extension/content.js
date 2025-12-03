@@ -213,7 +213,7 @@ async function showDonationPopup(price) {
       #aspiration-close-btn {
         position: absolute;
         top: 12px;
-        left: 12px;
+        right: 12px;
         width: 28px;
         height: 28px;
         padding: 0;
@@ -301,9 +301,9 @@ async function showDonationPopup(price) {
     
     <div style="text-align: center;">
       <!-- Tree and Progress Section -->
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-        <img src="${treeImageUrl}" alt="Your Impact Tree" style="width: 80px; height: 80px; object-fit: contain;" />
-        <div style="flex: 1; text-align: left;">
+      <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 16px;">
+        <img src="${treeImageUrl}" alt="Your Impact Tree" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 8px;" />
+        <div style="width: 100%; max-width: 200px;">
           <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Stage ${treeInfo.currentStage}/10</div>
           <div style="background: #e5e5e5; border-radius: 10px; height: 8px; overflow: hidden;">
             <div style="background: #333; height: 100%; width: ${treeInfo.progress}%; transition: width 0.3s;"></div>
