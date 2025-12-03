@@ -44,17 +44,7 @@ const PaymentSetup = () => {
       });
       if (paymentError) throw paymentError;
 
-      // Create initial donation record
-      const {
-        error: donationError
-      } = await supabase.from("donations").insert({
-        user_id: user.id,
-        charity_id: charityId,
-        amount: 0.25,
-        type: "round-up",
-        status: "completed"
-      });
-      if (donationError) throw donationError;
+      // Payment method created successfully - no initial donation needed
       toast({
         title: "Success!",
         description: "Round-up donations enabled successfully!"
@@ -109,12 +99,6 @@ const PaymentSetup = () => {
             {/* Left column - Payment form */}
             <Card className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                    stripe
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="cardNumber">Card number</Label>
                   <div className="relative">
@@ -146,6 +130,12 @@ const PaymentSetup = () => {
             {/* Right column - Example visualization */}
             <Card className="p-8 bg-accent">
               <div className="space-y-6">
+                <div className="text-center">
+                  <span className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
+                    Example
+                  </span>
+                </div>
+                
                 <div className="flex items-center justify-end">
                   <p className="text-lg font-semibold">$2.75</p>
                 </div>
@@ -158,7 +148,7 @@ const PaymentSetup = () => {
                   <p className="text-3xl font-bold">+$0.25</p>
                 </div>
 
-                <div className="text-center text-sm text-muted">
+                <div className="text-center text-sm text-muted-foreground">
                   Every purchase rounds up to the nearest dollar, automatically donating the difference to your selected charity.
                 </div>
               </div>

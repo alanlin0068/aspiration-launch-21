@@ -25,6 +25,7 @@ export type Database = {
           image_url: string | null
           name: string
           overview: string | null
+          website_url: string | null
         }
         Insert: {
           cost_effectiveness?: string | null
@@ -36,6 +37,7 @@ export type Database = {
           image_url?: string | null
           name: string
           overview?: string | null
+          website_url?: string | null
         }
         Update: {
           cost_effectiveness?: string | null
@@ -47,6 +49,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           overview?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -167,7 +170,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_stats: {
+        Args: never
+        Returns: {
+          active_users: number
+          charities_count: number
+          total_donated: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

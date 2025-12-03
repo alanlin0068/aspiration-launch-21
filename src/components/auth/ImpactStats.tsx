@@ -28,29 +28,20 @@ export const ImpactStats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch active users count (profiles)
-        const { count: usersCount } = await supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true });
-
-        // Fetch total donated amount
-        const { data: donations } = await supabase
-          .from("donations")
-          .select("amount");
+        // Use the public stats function that bypasses RLS
+        const { data, error } = await supabase.rpc('get_public_stats');
         
-        const totalDonated = donations?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
-
-        // Fetch charities count
-        const { count: charitiesCount } = await supabase
-          .from("charities")
-          .select("*", { count: "exact", head: true });
-
-        setStats({
-          activeUsers: usersCount || 0,
-          totalDonated,
-          charitiesPartnered: charitiesCount || 0,
-          livesSaved: estimateLivesSaved(totalDonated),
-        });
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const statsData = data[0];
+          setStats({
+            activeUsers: Number(statsData.active_users) || 0,
+            totalDonated: Number(statsData.total_donated) || 0,
+            charitiesPartnered: Number(statsData.charities_count) || 0,
+            livesSaved: estimateLivesSaved(Number(statsData.total_donated) || 0),
+          });
+        }
       } catch (error) {
         console.error("Error fetching stats:", error);
       } finally {
