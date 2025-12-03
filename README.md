@@ -22,16 +22,6 @@ Finally, you can view your dashboard and, by clicking on your profile, adjust an
 
 ## Interaction Sequence 2
 
-For Interaction Sequence 2, you will explore how the Aspiration chrome extension works on Amazon.  
-
-First, you will go on amazon as you normally would, and select a product that you would like to purchase.
-
-Second, navigate to checkout and wait for a pop-up from Aspiration which confirms a donation.
-
-Third, navigate to your profile through the extension, and check that your donation history was updated.
-
-## Interaction Sequence 2
-
 For Interaction Sequence 2, you will explore how to setup the chrome extension that will detect your online purchases and ask if you want to donate the roundup.
 
 First, goto 'chrome://extensions/' and turn on developer mode and click on the "Load Unpacked" button. Select the charity-extension folder in this repo.
@@ -42,7 +32,7 @@ To get started, log in to Aspiration on the web app(log out and log in again if 
 
 Now, you can click on the extension like you would with any other extension on chrome using the button to the right of the search bar where you can see if you are logged in.
 
-To see the extension in action, goto amazon.com and click on any product you see. You will see a popup asking if you want to donate the roundup amount of the product you selected. If you choose to donate, you will see corresponding changes in your dashboard in the web app. It will update your stats and also show up in your history of donations.
+To see the extension in action, goto amazon.com and add some items to your cart. When you goto checkout, you will see a popup asking if you want to donate the roundup amount of the product you selected. If you choose to donate, you will see corresponding changes in your dashboard in the web app. It will update your stats and also show up in your history of donations.
 
 ## How can I edit this code?
 

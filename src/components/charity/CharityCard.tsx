@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import charityMalaria from "@/assets/charity-malaria.jpg";
 import charityCash from "@/assets/charity-cash.jpg";
-import charityNutrition from "@/assets/charity-nutrition.jpg";
+import charityHelenKeller from "@/assets/charity-helen-keller.jpg";
 import charityAnimals from "@/assets/charity-animals.jpg";
 
 interface CharityCardProps {
@@ -13,7 +13,7 @@ interface CharityCardProps {
 const imageMap = {
   "🦟": charityMalaria,
   "💰": charityCash,
-  "👁️": charityNutrition,
+  "👁️": charityHelenKeller,
   "🐔": charityAnimals,
 };
 

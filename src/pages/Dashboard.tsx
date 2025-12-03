@@ -48,10 +48,10 @@ const TreeGrowth = ({ totalDonated }: { totalDonated: number }) => {
       <h2 className="text-2xl font-bold mb-6">Your Impact Tree</h2>
 
       <div
-        className="mb-6 p-8 rounded-2xl transition-all duration-500"
+        className="flex flex-col items-center mb-6 p-8 rounded-2xl transition-all duration-500"
       >
         <img
-          className="text-9xl mb-4 transition-all duration-500 hover:scale-110"
+          className="w-3/4 mb-4 transition-all duration-500 hover:scale-105"
           style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))" }}
           src={stage.imagepath}
           alt="Tree Growth Stage"
