@@ -147,7 +147,7 @@ function showDonationPopup(price) {
       </div>
 
       <p style="margin-top: 16px; font-size: 12px; color: #999;">
-        Powered by Aspiration
+        Powered by <a href="http://localhost:8080/dashboard" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 500;">Aspiration</a>
       </p>
     </div>
   `;
