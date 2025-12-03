@@ -78,14 +78,20 @@ function getTreeInfo(totalDonated) {
 // Function to fetch user's data (donations and charity)
 async function fetchUserData(token) {
     try {
+        console.log("Aspiration: Fetching user data with token:", token ? "present" : "missing");
+        
         const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
             headers: {
                 "Authorization": `Bearer ${token}`,
                 "apikey": SUPABASE_ANON_KEY
             }
         });
-        if (!userRes.ok) return { totalDonated: 0, charityName: null };
+        if (!userRes.ok) {
+            console.log("Aspiration: User fetch failed:", userRes.status);
+            return { totalDonated: 0, charityName: null };
+        }
         const user = await userRes.json();
+        console.log("Aspiration: User ID:", user.id);
         
         // Fetch donations
         const donationsRes = await fetch(
@@ -99,6 +105,7 @@ async function fetchUserData(token) {
         );
         const donations = donationsRes.ok ? await donationsRes.json() : [];
         const totalDonated = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+        console.log("Aspiration: Total donated:", totalDonated);
         
         // Fetch selected charity
         const selectionRes = await fetch(
@@ -110,9 +117,12 @@ async function fetchUserData(token) {
                 }
             }
         );
+        console.log("Aspiration: Charity selection response:", selectionRes.status);
+        
         let charityName = null;
         if (selectionRes.ok) {
             const selections = await selectionRes.json();
+            console.log("Aspiration: Selections:", selections);
             if (selections.length > 0) {
                 const charityRes = await fetch(
                     `${SUPABASE_URL}/rest/v1/charities?select=name&id=eq.${selections[0].charity_id}`,
@@ -123,8 +133,10 @@ async function fetchUserData(token) {
                         }
                     }
                 );
+                console.log("Aspiration: Charity fetch response:", charityRes.status);
                 if (charityRes.ok) {
                     const charities = await charityRes.json();
+                    console.log("Aspiration: Charities:", charities);
                     if (charities.length > 0) {
                         charityName = charities[0].name;
                     }
@@ -132,9 +144,10 @@ async function fetchUserData(token) {
             }
         }
         
+        console.log("Aspiration: Final charity name:", charityName);
         return { totalDonated, charityName };
     } catch (e) {
-        console.error("Error fetching user data:", e);
+        console.error("Aspiration: Error fetching user data:", e);
         return { totalDonated: 0, charityName: null };
     }
 }
