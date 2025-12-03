@@ -131,7 +131,7 @@ const PaymentSetup = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="cvv">Security code</Label>
-                    <Input id="cvv" type="text" placeholder="CVV" value={cvv} onChange={e => setCvv(e.target.value)} maxLength={4} required />
+                    <Input id="cvv" type="text" placeholder="CVV" value={cvv} onChange={e => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))} maxLength={3} required />
                   </div>
                 </div>
 
@@ -142,12 +142,10 @@ const PaymentSetup = () => {
             </Card>
 
             {/* Right column - Example visualization */}
-            <Card className="p-8">
+            <Card className="p-8 h-full flex flex-col justify-center">
               <div className="space-y-6">
                 <div className="text-center mb-2">
-                  <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    How it works
-                  </span>
+                  <Label className="text-muted-foreground">How it works</Label>
                 </div>
                 
                 <div className="space-y-2">
