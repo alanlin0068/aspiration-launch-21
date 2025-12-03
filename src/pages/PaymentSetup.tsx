@@ -142,30 +142,33 @@ const PaymentSetup = () => {
             </Card>
 
             {/* Right column - Example visualization */}
-            <Card className="p-8 bg-secondary/30 border-2 border-dashed border-muted-foreground/30">
+            <Card className="p-8">
               <div className="space-y-6">
-                <div className="text-center">
-                  <span className="bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide">
-                    Example
+                <div className="text-center mb-2">
+                  <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    How it works
                   </span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 bg-background rounded-lg border border-border">
-                  <span className="text-muted-foreground">Daily Coffee</span>
-                  <span className="text-lg font-semibold">$3.75</span>
-                </div>
-
-                <div className="bg-primary text-primary-foreground rounded-lg p-6 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sprout className="h-5 w-5" />
-                    <span className="font-medium">Round-Up</span>
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Your purchase</Label>
+                  <div className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2">
+                    <span className="text-foreground">Daily Coffee</span>
+                    <span className="font-semibold text-foreground">$3.75</span>
                   </div>
-                  <p className="text-3xl font-bold">+$0.25</p>
                 </div>
 
-                <div className="text-center text-sm text-muted-foreground">
-                  Every purchase rounds up to the nearest dollar, automatically donating the difference to your selected charity.
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Round-up donation</Label>
+                  <div className="flex h-10 w-full items-center justify-center rounded-md border border-primary bg-primary/10 px-3 py-2">
+                    <Sprout className="h-4 w-4 text-primary mr-2" />
+                    <span className="font-semibold text-primary">+$0.25</span>
+                  </div>
                 </div>
+
+                <p className="text-sm text-muted-foreground text-center pt-2">
+                  Every purchase rounds up to the nearest dollar, automatically donating the difference to your selected charity.
+                </p>
               </div>
             </Card>
           </div>

@@ -30,6 +30,7 @@ interface TreeGrowthProps {
 
 // Tree Growth Component
 const TreeGrowth = ({ totalDonated, onDonate, selectedCharityId }: TreeGrowthProps) => {
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
 
   const getTreeStage = (amount: number) => {
@@ -54,11 +55,17 @@ const TreeGrowth = ({ totalDonated, onDonate, selectedCharityId }: TreeGrowthPro
   const progress = totalDonated >= 10000 ? 100 : ((totalDonated - previousMilestone) / (nextMilestone - previousMilestone)) * 100;
   const amountToNextStage = Math.max(0, nextMilestone - totalDonated);
 
-  const handleCustomDonate = () => {
+  const handleSelectAmount = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount(amount.toFixed(2));
+  };
+
+  const handleDonate = () => {
     const amount = parseFloat(customAmount);
     if (amount > 0 && selectedCharityId) {
       onDonate(amount);
       setCustomAmount("");
+      setSelectedAmount(null);
     }
   };
 
@@ -99,20 +106,32 @@ const TreeGrowth = ({ totalDonated, onDonate, selectedCharityId }: TreeGrowthPro
       {selectedCharityId && (
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-3">
-            <Button variant="outline" onClick={() => onDonate(1)} className="font-semibold">
+            <Button 
+              variant={selectedAmount === 1 ? "default" : "outline"} 
+              onClick={() => handleSelectAmount(1)} 
+              className="font-semibold"
+            >
               $1
             </Button>
-            <Button variant="outline" onClick={() => onDonate(5)} className="font-semibold">
+            <Button 
+              variant={selectedAmount === 5 ? "default" : "outline"} 
+              onClick={() => handleSelectAmount(5)} 
+              className="font-semibold"
+            >
               $5
             </Button>
-            <Button variant="outline" onClick={() => onDonate(10)} className="font-semibold">
+            <Button 
+              variant={selectedAmount === 10 ? "default" : "outline"} 
+              onClick={() => handleSelectAmount(10)} 
+              className="font-semibold"
+            >
               $10
             </Button>
           </div>
           {amountToNextStage > 0 && amountToNextStage !== 1 && amountToNextStage !== 5 && amountToNextStage !== 10 && (
             <Button 
-              variant="secondary" 
-              onClick={() => onDonate(amountToNextStage)} 
+              variant={selectedAmount === amountToNextStage ? "default" : "secondary"} 
+              onClick={() => handleSelectAmount(amountToNextStage)} 
               className="w-full font-semibold"
             >
               ${amountToNextStage.toFixed(2)} to next stage
@@ -125,13 +144,16 @@ const TreeGrowth = ({ totalDonated, onDonate, selectedCharityId }: TreeGrowthPro
                 type="number"
                 placeholder="Custom amount"
                 value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
+                onChange={(e) => {
+                  setCustomAmount(e.target.value);
+                  setSelectedAmount(null);
+                }}
                 className="pl-8"
                 min="0.01"
                 step="0.01"
               />
             </div>
-            <Button onClick={handleCustomDonate} disabled={!customAmount || parseFloat(customAmount) <= 0}>
+            <Button onClick={handleDonate} disabled={!customAmount || parseFloat(customAmount) <= 0}>
               Donate
             </Button>
           </div>
