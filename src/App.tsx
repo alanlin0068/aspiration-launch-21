@@ -9,6 +9,7 @@ import CharitySelection from "./pages/CharitySelection";
 import CharityDetails from "./pages/CharityDetails";
 import PaymentSetup from "./pages/PaymentSetup";
 import Dashboard from "./pages/Dashboard";
+import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/charity/:id" element={<CharityDetails />} />
           <Route path="/payment-setup/:charityId" element={<PaymentSetup />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
