@@ -112,7 +112,21 @@ const PaymentSetup = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="expiryDate">Expiration date</Label>
-                    <Input id="expiryDate" type="text" placeholder="MM/YY" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} maxLength={5} required />
+                    <Input 
+                      id="expiryDate" 
+                      type="text" 
+                      placeholder="MM/YY" 
+                      value={expiryDate} 
+                      onChange={e => {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length >= 2) {
+                          value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                        }
+                        setExpiryDate(value);
+                      }} 
+                      maxLength={5} 
+                      required 
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -128,16 +142,17 @@ const PaymentSetup = () => {
             </Card>
 
             {/* Right column - Example visualization */}
-            <Card className="p-8 bg-accent">
+            <Card className="p-8 bg-secondary/30 border-2 border-dashed border-muted-foreground/30">
               <div className="space-y-6">
                 <div className="text-center">
-                  <span className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
+                  <span className="bg-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide">
                     Example
                   </span>
                 </div>
                 
-                <div className="flex items-center justify-end">
-                  <p className="text-lg font-semibold">$2.75</p>
+                <div className="flex items-center justify-between p-3 bg-background rounded-lg border border-border">
+                  <span className="text-muted-foreground">Daily Coffee</span>
+                  <span className="text-lg font-semibold">$3.75</span>
                 </div>
 
                 <div className="bg-primary text-primary-foreground rounded-lg p-6 text-center">
