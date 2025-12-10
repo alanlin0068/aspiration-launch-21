@@ -44,17 +44,7 @@ const PaymentSetup = () => {
       });
       if (paymentError) throw paymentError;
 
-      // Create initial donation record
-      const {
-        error: donationError
-      } = await supabase.from("donations").insert({
-        user_id: user.id,
-        charity_id: charityId,
-        amount: 0.25,
-        type: "round-up",
-        status: "completed"
-      });
-      if (donationError) throw donationError;
+      // Payment method created successfully - no initial donation needed
       toast({
         title: "Success!",
         description: "Round-up donations enabled successfully!"
@@ -105,16 +95,10 @@ const PaymentSetup = () => {
             Set up Round-Up Donations
           </h1>
 
-          <div className="grid lg:grid-cols-2 gap-8 items-start">
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
             {/* Left column - Payment form */}
             <Card className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                    stripe
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="cardNumber">Card number</Label>
                   <div className="relative">
@@ -128,12 +112,26 @@ const PaymentSetup = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="expiryDate">Expiration date</Label>
-                    <Input id="expiryDate" type="text" placeholder="MM/YY" value={expiryDate} onChange={e => setExpiryDate(e.target.value)} maxLength={5} required />
+                    <Input 
+                      id="expiryDate" 
+                      type="text" 
+                      placeholder="MM/YY" 
+                      value={expiryDate} 
+                      onChange={e => {
+                        let value = e.target.value.replace(/\D/g, '');
+                        if (value.length >= 2) {
+                          value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                        }
+                        setExpiryDate(value);
+                      }} 
+                      maxLength={5} 
+                      required 
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="cvv">Security code</Label>
-                    <Input id="cvv" type="text" placeholder="CVV" value={cvv} onChange={e => setCvv(e.target.value)} maxLength={4} required />
+                    <Input id="cvv" type="text" placeholder="CVV" value={cvv} onChange={e => setCvv(e.target.value.replace(/\D/g, '').slice(0, 3))} maxLength={3} required />
                   </div>
                 </div>
 
@@ -144,23 +142,31 @@ const PaymentSetup = () => {
             </Card>
 
             {/* Right column - Example visualization */}
-            <Card className="p-8 bg-accent">
+            <Card className="p-8 h-full flex flex-col justify-center">
               <div className="space-y-6">
-                <div className="flex items-center justify-end">
-                  <p className="text-lg font-semibold">$2.75</p>
+                <div className="text-center mb-2">
+                  <Label className="text-muted-foreground">How it works</Label>
                 </div>
-
-                <div className="bg-primary text-primary-foreground rounded-lg p-6 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sprout className="h-5 w-5" />
-                    <span className="font-medium">Round-Up</span>
+                
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Your purchase</Label>
+                  <div className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2">
+                    <span className="text-foreground">Daily Coffee</span>
+                    <span className="font-semibold text-foreground">$3.75</span>
                   </div>
-                  <p className="text-3xl font-bold">+$0.25</p>
                 </div>
 
-                <div className="text-center text-sm text-muted">
-                  Every purchase rounds up to the nearest dollar, automatically donating the difference to your selected charity.
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Round-up donation</Label>
+                  <div className="flex h-10 w-full items-center justify-center rounded-md border border-primary bg-primary/10 px-3 py-2">
+                    <Sprout className="h-4 w-4 text-primary mr-2" />
+                    <span className="font-semibold text-primary">+$0.25</span>
+                  </div>
                 </div>
+
+                <p className="text-sm text-muted-foreground text-center pt-2">
+                  Every purchase rounds up to the nearest dollar, automatically donating the difference to your selected charity.
+                </p>
               </div>
             </Card>
           </div>

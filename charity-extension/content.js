@@ -48,12 +48,129 @@ function isAmazonCheckoutPage() {
     return url.includes('amazon.com') && (url.includes('/checkout/'));
 }
 
+// Function to get tree stage and progress info
+function getTreeInfo(totalDonated) {
+    const milestones = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    let currentStage = 1;
+    let currentMilestone = 1;
+    let previousMilestone = 0;
+    
+    for (let i = 0; i < milestones.length; i++) {
+        if (totalDonated >= milestones[i]) {
+            currentStage = i + 2;
+            previousMilestone = milestones[i];
+            currentMilestone = milestones[i + 1] || milestones[i];
+        } else {
+            currentMilestone = milestones[i];
+            break;
+        }
+    }
+    
+    currentStage = Math.min(currentStage, 10);
+    const progress = previousMilestone === currentMilestone 
+        ? 100 
+        : ((totalDonated - previousMilestone) / (currentMilestone - previousMilestone)) * 100;
+    const toNextStage = Math.max(0, currentMilestone - totalDonated);
+    
+    return { currentStage, progress, toNextStage, currentMilestone };
+}
+
+// Function to fetch user's data (donations and charity)
+async function fetchUserData(token) {
+    try {
+        console.log("Aspiration: Fetching user data with token:", token ? "present" : "missing");
+        
+        const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "apikey": SUPABASE_ANON_KEY
+            }
+        });
+        if (!userRes.ok) {
+            console.log("Aspiration: User fetch failed:", userRes.status);
+            return { totalDonated: 0, charityName: null };
+        }
+        const user = await userRes.json();
+        console.log("Aspiration: User ID:", user.id);
+        
+        // Fetch donations
+        const donationsRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/donations?select=amount&user_id=eq.${user.id}&status=eq.completed`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "apikey": SUPABASE_ANON_KEY
+                }
+            }
+        );
+        const donations = donationsRes.ok ? await donationsRes.json() : [];
+        const totalDonated = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+        console.log("Aspiration: Total donated:", totalDonated);
+        
+        // Fetch selected charity
+        const selectionRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/user_charity_selections?select=charity_id&user_id=eq.${user.id}&order=selected_at.desc&limit=1`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "apikey": SUPABASE_ANON_KEY
+                }
+            }
+        );
+        console.log("Aspiration: Charity selection response:", selectionRes.status);
+        
+        let charityName = null;
+        if (selectionRes.ok) {
+            const selections = await selectionRes.json();
+            console.log("Aspiration: Selections:", selections);
+            if (selections.length > 0) {
+                const charityRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/charities?select=name&id=eq.${selections[0].charity_id}`,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "apikey": SUPABASE_ANON_KEY
+                        }
+                    }
+                );
+                console.log("Aspiration: Charity fetch response:", charityRes.status);
+                if (charityRes.ok) {
+                    const charities = await charityRes.json();
+                    console.log("Aspiration: Charities:", charities);
+                    if (charities.length > 0) {
+                        charityName = charities[0].name;
+                    }
+                }
+            }
+        }
+        
+        console.log("Aspiration: Final charity name:", charityName);
+        return { totalDonated, charityName };
+    } catch (e) {
+        console.error("Aspiration: Error fetching user data:", e);
+        return { totalDonated: 0, charityName: null };
+    }
+}
+
 // Function to create and show the donation popup
-function showDonationPopup(price) {
+async function showDonationPopup(price) {
     if (popupShown) return;
     popupShown = true;
 
     const roundUp = Math.ceil(price) - price;
+    
+    // Fetch user's tree progress and charity
+    const result = await chrome.storage.local.get("token");
+    const token = result.token;
+    const userData = token ? await fetchUserData(token) : { totalDonated: 0, charityName: null };
+    const treeInfo = getTreeInfo(userData.totalDonated);
+    const charityName = userData.charityName;
+    const charityDisplay = charityName 
+        ? `Donate to <span style="color: #10b981; font-weight: 500;">${charityName}</span>`
+        : `<a href="http://localhost:8080/charity-selection" target="_blank" style="color: #10b981; text-decoration: none;">Select a charity</a> to start donating`;
+    
+    // Tree image URL (using GitHub raw or local extension assets)
+    const treeImageUrl = chrome.runtime.getURL(`images/stage${treeInfo.currentStage}.png`);
 
     // Create overlay
     const overlay = document.createElement('div');
@@ -77,11 +194,13 @@ function showDonationPopup(price) {
     popup.style.cssText = `
     background: white;
     border-radius: 16px;
-    padding: 32px;
+    padding: 24px;
     max-width: 400px;
+    width: 90%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s ease-out;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
   `;
 
     popup.innerHTML = `
@@ -107,47 +226,151 @@ function showDonationPopup(price) {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
+      #aspiration-close-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: #f5f5f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #666;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+      }
+      #aspiration-close-btn:hover {
+        background: #e5e5e5;
+        transform: none;
+        box-shadow: none;
+      }
+      #aspiration-more-options {
+        margin-top: 12px;
+        text-align: center;
+      }
+      #aspiration-more-options summary {
+        cursor: pointer;
+        color: #666;
+        font-size: 13px;
+        list-style: none;
+        padding: 8px;
+      }
+      #aspiration-more-options summary::-webkit-details-marker {
+        display: none;
+      }
+      #aspiration-more-options summary::after {
+        content: ' ▼';
+        font-size: 10px;
+      }
+      #aspiration-more-options[open] summary::after {
+        content: ' ▲';
+      }
+      .aspiration-quick-amounts {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        justify-content: center;
+      }
+      .aspiration-quick-amount {
+        padding: 8px 16px !important;
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        font-size: 14px !important;
+        border: 1px solid #ddd !important;
+      }
+      .aspiration-quick-amount:hover {
+        background: #e8f5e9 !important;
+        border-color: #10b981 !important;
+        color: #10b981 !important;
+      }
+      .aspiration-custom-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        align-items: center;
+      }
+      .aspiration-custom-input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+      }
+      .aspiration-custom-input:focus {
+        border-color: #10b981;
+      }
+      .aspiration-custom-donate {
+        padding: 10px 16px !important;
+        background: #10b981 !important;
+        color: white !important;
+        font-size: 14px !important;
+      }
     </style>
+    
+    <button id="aspiration-close-btn">×</button>
+    
     <div style="text-align: center;">
-      <div style="font-size: 48px; margin-bottom: 16px;">🌱</div>
-      <h2 style="margin: 0 0 8px 0; font-size: 24px; color: #1a1a1a;">Make an Impact?</h2>
-      <p style="color: #666; margin: 0 0 24px 0; font-size: 14px;">Round up your purchase to donate the difference</p>
+      <!-- Tree and Progress Section -->
+      <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 16px;">
+        <img src="${treeImageUrl}" alt="Your Impact Tree" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 8px;" />
+        <div style="width: 100%; max-width: 200px;">
+          <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Stage ${treeInfo.currentStage}/10</div>
+          <div style="background: #e5e5e5; border-radius: 10px; height: 8px; overflow: hidden;">
+            <div style="background: #333; height: 100%; width: ${treeInfo.progress}%; transition: width 0.3s;"></div>
+          </div>
+          <div style="font-size: 11px; color: #999; margin-top: 4px;">$${treeInfo.toNextStage.toFixed(2)} to next stage</div>
+        </div>
+      </div>
       
-      <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+      <h2 style="margin: 0 0 8px 0; font-size: 22px; color: #1a1a1a;">Make an Impact?</h2>
+      <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">${charityDisplay}</p>
+      
+      <div style="background: #f5f5f5; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
           <span style="color: #666;">Purchase Price:</span>
           <span style="font-weight: 600;">$${price.toFixed(2)}</span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
           <span style="color: #666;">Rounded Up:</span>
           <span style="font-weight: 600;">$${Math.ceil(price).toFixed(2)}</span>
         </div>
-        <div style="height: 1px; background: #ddd; margin: 12px 0;"></div>
+        <div style="height: 1px; background: #ddd; margin: 10px 0;"></div>
         <div style="display: flex; justify-content: space-between;">
           <span style="color: #10b981; font-weight: 600;">Donation:</span>
-          <span style="font-size: 20px; color: #10b981; font-weight: 700;">$${roundUp.toFixed(2)}</span>
+          <span style="font-size: 18px; color: #10b981; font-weight: 700;">$${roundUp.toFixed(2)}</span>
         </div>
       </div>
 
-      <div style="display: flex; gap: 12px;">
-        <button id="aspiration-donate" style="
-          flex: 1;
-          background: #10b981;
-          color: white;
-        ">
-          Donate $${roundUp.toFixed(2)}
-        </button>
-        <button id="aspiration-skip" style="
-          flex: 1;
-          background: #e5e5e5;
-          color: #666;
-        ">
-          Skip
-        </button>
-      </div>
+      <button id="aspiration-donate" style="
+        width: 100%;
+        background: #10b981;
+        color: white;
+      ">
+        Donate $${roundUp.toFixed(2)}
+      </button>
+      
+      <details id="aspiration-more-options">
+        <summary>More donation options</summary>
+        <div class="aspiration-quick-amounts">
+          <button class="aspiration-quick-amount" data-amount="1">$1</button>
+          <button class="aspiration-quick-amount" data-amount="5">$5</button>
+          <button class="aspiration-quick-amount" data-amount="10">$10</button>
+        </div>
+        <div class="aspiration-custom-row">
+          <span style="color: #666;">$</span>
+          <input type="number" class="aspiration-custom-input" id="aspiration-custom-amount" placeholder="Custom amount" step="0.01" min="0.01" />
+          <button class="aspiration-custom-donate" id="aspiration-custom-donate-btn">Donate</button>
+        </div>
+      </details>
 
       <p style="margin-top: 16px; font-size: 12px; color: #999;">
-        Powered by Aspiration
+        Powered by <a href="http://localhost:8080/dashboard" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 500;">Aspiration</a>
       </p>
     </div>
   `;
@@ -155,15 +378,36 @@ function showDonationPopup(price) {
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
 
-    // Handle donate button
+    // Handle close button
+    document.getElementById('aspiration-close-btn').addEventListener('click', () => {
+        overlay.remove();
+    });
+
+    // Handle main donate button (roundup amount)
     document.getElementById('aspiration-donate').addEventListener('click', async () => {
         await processDonation(price, roundUp);
         overlay.remove();
     });
 
-    // Handle skip button
-    document.getElementById('aspiration-skip').addEventListener('click', () => {
-        overlay.remove();
+    // Handle quick amount buttons ($1, $5, $10)
+    document.querySelectorAll('.aspiration-quick-amount').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const amount = parseFloat(btn.dataset.amount);
+            await processDonation(price, amount);
+            overlay.remove();
+        });
+    });
+
+    // Handle custom amount donation
+    document.getElementById('aspiration-custom-donate-btn').addEventListener('click', async () => {
+        const customInput = document.getElementById('aspiration-custom-amount');
+        const amount = parseFloat(customInput.value);
+        if (amount && amount > 0) {
+            await processDonation(price, amount);
+            overlay.remove();
+        } else {
+            customInput.style.borderColor = '#ef4444';
+        }
     });
 
     // Close on overlay click (outside popup)

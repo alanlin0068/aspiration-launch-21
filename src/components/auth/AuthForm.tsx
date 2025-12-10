@@ -183,7 +183,16 @@ export const AuthForm = ({ mode = "signup" }: AuthFormProps) => {
               onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
             />
             <Label htmlFor="terms" className="text-sm cursor-pointer">
-              I agree to the Terms of Service and Privacy Policy.
+              I agree to the{" "}
+              <a
+                href="/terms-of-service"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Terms of Service
+              </a>{" "}
+              and Privacy Policy.
             </Label>
           </div>
         )}

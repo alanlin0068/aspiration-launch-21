@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Sprout, Heart, TrendingUp, Users, Calendar, Ambulance } from "lucide-react";
+import { Sprout, Heart, TrendingUp, Users, Calendar, DollarSign } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import forestHero from "@/assets/forest-hero.jpg";
 import type { Database } from "@/integrations/supabase/types";
@@ -20,8 +22,17 @@ interface DonationStats {
   livesImpacted: number;
   roundUps: number;
 }
+interface TreeGrowthProps {
+  totalDonated: number;
+  onDonate: (amount: number) => void;
+  selectedCharityId: string | null;
+}
+
 // Tree Growth Component
-const TreeGrowth = ({ totalDonated }: { totalDonated: number }) => {
+const TreeGrowth = ({ totalDonated, onDonate, selectedCharityId }: TreeGrowthProps) => {
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [customAmount, setCustomAmount] = useState("");
+
   const getTreeStage = (amount: number) => {
     if (amount >= 10000) return { imagepath: "../../images/stage10.png", message: "You're a forest legend!" };
     if (amount >= 5000) return { imagepath: "../../images/stage9.png", message: "Your forest is flourishing!" };
@@ -39,19 +50,32 @@ const TreeGrowth = ({ totalDonated }: { totalDonated: number }) => {
 
   const milestones = [0, 1, 10, 50, 100, 200, 300, 500, 1000, 5000, 10000];
   const currentMilestoneIndex = milestones.findIndex(m => totalDonated < m);
-  const nextMilestone = currentMilestoneIndex > 0 ? milestones[currentMilestoneIndex] : 500;
+  const nextMilestone = currentMilestoneIndex > 0 ? milestones[currentMilestoneIndex] : 10000;
   const previousMilestone = currentMilestoneIndex > 1 ? milestones[currentMilestoneIndex - 1] : 0;
-  const progress = totalDonated >= 500 ? 100 : ((totalDonated - previousMilestone) / (nextMilestone - previousMilestone)) * 100;
+  const progress = totalDonated >= 10000 ? 100 : ((totalDonated - previousMilestone) / (nextMilestone - previousMilestone)) * 100;
+  const amountToNextStage = Math.max(0, nextMilestone - totalDonated);
+
+  const handleSelectAmount = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount(amount.toFixed(2));
+  };
+
+  const handleDonate = () => {
+    const amount = parseFloat(customAmount);
+    if (amount > 0 && selectedCharityId) {
+      onDonate(amount);
+      setCustomAmount("");
+      setSelectedAmount(null);
+    }
+  };
 
   return (
     <Card className="p-8 text-center">
       <h2 className="text-2xl font-bold mb-6">Your Impact Tree</h2>
 
-      <div
-        className="flex flex-col items-center mb-6 p-8 rounded-2xl transition-all duration-500"
-      >
+      <div className="flex flex-col items-center mb-6 p-4 rounded-2xl transition-all duration-500">
         <img
-          className="w-3/4 mb-4 transition-all duration-500 hover:scale-105"
+          className="w-1/2 max-w-48 mb-4 transition-all duration-500 hover:scale-105"
           style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))" }}
           src={stage.imagepath}
           alt="Tree Growth Stage"
@@ -60,56 +84,81 @@ const TreeGrowth = ({ totalDonated }: { totalDonated: number }) => {
       </div>
 
       {totalDonated < 10000 && (
-        <div className="mb-4">
+        <div className="mb-6">
           <div className="flex justify-between text-sm text-muted mb-2">
             <span>${previousMilestone}</span>
-            <span className="font-semibold" >
-              ${totalDonated.toFixed(2)}
-            </span>
+            <span className="font-semibold">${totalDonated.toFixed(2)}</span>
             <span>${nextMilestone}</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${progress}%`,
-              }}
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
             />
           </div>
           <p className="text-xs text-muted mt-2">
-            ${(nextMilestone - totalDonated).toFixed(2)} until next stage
+            ${amountToNextStage.toFixed(2)} until next stage
           </p>
         </div>
       )}
 
-      {/* <div className="border-t pt-6 mt-6">
-        <p className="text-sm text-muted mb-4">Growth Stages</p>
-        <div className="grid grid-cols-4 gap-3">
-          {[
-            { amount: 1, imagepath: "../../images/stage1.png" },
-            { amount: 10, imagepath: "../../images/stage2.png" },
-            { amount: 50, imagepath: "../../images/stage3.png" },
-            { amount: 100, imagepath: "../../images/stage4.png" },
-            { amount: 200, imagepath: "../../images/stage5.png" },
-            { amount: 300, imagepath: "../../images/stage6.png" },
-            { amount: 500, imagepath: "../../images/stage7.png" },
-            { amount: 1000, imagepath: "../../images/stage8.png" },
-            { amount: 5000, imagepath: "../../images/stage9.png" },
-            { amount: 10000, imagepath: "../../images/stage10.png" },
-          ].map((milestone) => (
-            <div
-              key={milestone.amount}
-              className={`p-3 rounded-lg border-2 transition-all ${totalDonated >= milestone.amount
-                  ? 'border-primary bg-primary/10'
-                  : 'border-gray-200 bg-gray-50 opacity-50'
-                }`}
+      {/* Quick Donation Buttons */}
+      {selectedCharityId && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-3 gap-3">
+            <Button 
+              variant={selectedAmount === 1 ? "default" : "outline"} 
+              onClick={() => handleSelectAmount(1)} 
+              className="font-semibold"
             >
-              <img src={milestone.imagepath} className="text-3xl mb-1" />
-              <div className="text-xs font-semibold">${milestone.amount}</div>
+              $1
+            </Button>
+            <Button 
+              variant={selectedAmount === 5 ? "default" : "outline"} 
+              onClick={() => handleSelectAmount(5)} 
+              className="font-semibold"
+            >
+              $5
+            </Button>
+            <Button 
+              variant={selectedAmount === 10 ? "default" : "outline"} 
+              onClick={() => handleSelectAmount(10)} 
+              className="font-semibold"
+            >
+              $10
+            </Button>
+          </div>
+          {amountToNextStage > 0 && amountToNextStage !== 1 && amountToNextStage !== 5 && amountToNextStage !== 10 && (
+            <Button 
+              variant={selectedAmount === amountToNextStage ? "default" : "secondary"} 
+              onClick={() => handleSelectAmount(amountToNextStage)} 
+              className="w-full font-semibold"
+            >
+              ${amountToNextStage.toFixed(2)} to next stage
+            </Button>
+          )}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="number"
+                placeholder="Custom amount"
+                value={customAmount}
+                onChange={(e) => {
+                  setCustomAmount(e.target.value);
+                  setSelectedAmount(null);
+                }}
+                className="pl-8"
+                min="0.01"
+                step="0.01"
+              />
             </div>
-          ))}
+            <Button onClick={handleDonate} disabled={!customAmount || parseFloat(customAmount) <= 0}>
+              Donate
+            </Button>
+          </div>
         </div>
-      </div> */}
+      )}
     </Card>
   );
 };
@@ -134,6 +183,47 @@ const Dashboard = () => {
     fetchSelectedCharity();
     fetchDonationHistory();
   }, []);
+
+  const handleDonate = async (amount: number) => {
+    if (!selectedCharity) {
+      toast({
+        title: "No charity selected",
+        description: "Please select a charity first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase.from("donations").insert({
+        user_id: user.id,
+        charity_id: selectedCharity.id,
+        amount: amount,
+        type: "one-time",
+        status: "completed",
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Donation successful!",
+        description: `You donated $${amount.toFixed(2)} to ${selectedCharity.name}`,
+      });
+
+      // Refresh stats and history
+      fetchDonationStats();
+      fetchDonationHistory();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
   const checkAuth = async () => {
     const {
       data: {
@@ -296,7 +386,11 @@ const Dashboard = () => {
           </div>}
         </div>
         <div className="mb-8">
-          <TreeGrowth totalDonated={stats.allTime} />
+          <TreeGrowth 
+            totalDonated={stats.allTime} 
+            onDonate={handleDonate}
+            selectedCharityId={selectedCharity?.id || null}
+          />
         </div>
 
         {/* Stats Grid */}
